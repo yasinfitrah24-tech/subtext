@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import Layout from '../components/Layout';
 import evalStats from '../lib/evalStats.json';
@@ -56,6 +57,7 @@ export default function Home() {
 
   const problemRef = useRise();
   const resultsRef = useRise();
+  const bobRef = useRise();
 
   const stat1 = useCountUp(1, 800);
   const stat2 = useCountUp(3, 1000);
@@ -189,6 +191,51 @@ export default function Home() {
         </div>
         <div className={styles.sourceNote}>
           Numbers from <code className={styles.inlineCode}>eval/results.json</code> · run <code className={styles.inlineCode}>npm test</code> in <code className={styles.inlineCode}>/scanner</code> to reproduce
+        </div>
+      </section>
+      {/* ── Built with IBM Bob ── */}
+      <section className={styles.bob} ref={bobRef as React.RefObject<HTMLElement>}>
+        <div>
+          <div className={styles.eyebrow}>BUILT WITH IBM BOB</div>
+          <h2 className={styles.h2}>Bob is the gate,</h2>
+          <div className={styles.italic2}>not the target.</div>
+        </div>
+
+        <div className={styles.bobGrid}>
+          <div className={styles.bobMain}>
+            <div className={styles.bobMainHead}>
+              <div className={styles.bobMainTitle}>Security Gate mode</div>
+              <Image src="/ibm-bob.png" alt="IBM Bob" width={48} height={48} />
+            </div>
+            <ul className={styles.bobList}>
+              <li>Treats repo text as data, never as orders</li>
+              <li>Read-only: never runs, installs or fetches repo content</li>
+              <li>Reports every finding as SAFE, REVIEW or BLOCK</li>
+              <li>Declines to edit code, even when asked</li>
+              <li>Hands off to Agent mode only when SAFE</li>
+            </ul>
+          </div>
+          <div className={styles.bobSide}>
+            <div className={styles.bobCard}>
+              <div className={styles.bobCardTitle}>Custom mode in the repo</div>
+              <div className={styles.bobCardDesc}><code className={styles.inlineCode}>.bob/custom_modes.yaml</code>: read, skill and todo only. No write access.</div>
+            </div>
+            <div className={styles.bobCard}>
+              <div className={styles.bobCardTitle}>Built task by task</div>
+              <div className={styles.bobCardDesc}>Scanner, tests, eval set, Granite judge and this site, each one a Bob task</div>
+            </div>
+            <div className={styles.bobCard}>
+              <div className={styles.bobCardHead}>
+                <Image src="/ibm-granite.png" alt="IBM Granite" width={24} height={24} />
+                <div className={styles.bobCardTitle}>IBM Granite Guardian</div>
+              </div>
+              <div className={styles.bobCardDesc}>Judges flagged snippets only, so scans stay cheap</div>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.bobFoot}>
+          12 Bob tasks · 146/146 tests · 48 hours · every task exported in bob_sessions/
         </div>
       </section>
     </Layout>

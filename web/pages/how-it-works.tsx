@@ -145,13 +145,13 @@ export default function HowItWorksPage() {
               className={`${styles.toggleBtn} ${humanView ? styles.toggleActive : ''}`}
               onClick={() => setHumanView(true)}
             >
-              Human view
+              Text · what you see
             </button>
             <button
               className={`${styles.toggleBtn} ${!humanView ? styles.toggleActive : ''}`}
               onClick={() => setHumanView(false)}
             >
-              Agent view
+              Subtext · what the agent reads
             </button>
             <div className={styles.toggleSlider} style={{ transform: humanView ? 'translateX(0)' : 'translateX(100%)' }} />
           </div>
