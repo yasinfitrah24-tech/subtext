@@ -1,0 +1,29 @@
+{
+  "name": "prompt-injection-scanner",
+  "version": "1.0.0",
+  "description": "TypeScript CLI to scan folders for hidden prompt injection attacks",
+  "main": "dist/index.js",
+  "bin": {
+    "scanner": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "scan": "ts-node src/index.ts",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
+  },
+  "dependencies": {
+    "glob": "^10.4.5"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.13",
+    "@types/node": "^22.9.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  },
+  "keywords": ["security", "prompt-injection", "cli", "scanner"],
+  "license": "MIT"
+}
