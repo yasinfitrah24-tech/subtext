@@ -1,0 +1,12 @@
+{
+  "score": 35,
+  "verdict": "REVIEW",
+  "findings": [
+    {
+      "file": "D:\\subtext\\demo\\clean-starter\\README.md",
+      "line": 7,
+      "rule": "ACTION_VERB_NEAR_SECRET",
+      "snippet": "Copy `.env.example` to `.env`, then run `npm install` and `npm start`."
+    }
+  ]
+}
