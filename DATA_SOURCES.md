@@ -2,7 +2,7 @@
 
 ## Self-created (Team Triple T)
 - `dataset/malicious/`: synthetic prompt-injection samples written by the team. No real secrets or personal data; all keys and emails are fake placeholders.
-- `dataset/clean/`: benign sample files written by the team.
+- `dataset/benign/`: benign sample files written by the team.
 
 ## Public repositories (commercial use permitted)
 | Repo | License | Commit | Used for |
