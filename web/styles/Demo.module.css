@@ -1,0 +1,439 @@
+.header {
+  padding: 80px clamp(24px, 8vw, 120px) 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-bottom: 1px solid #1E2940;
+}
+
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: #F2A93B;
+  margin-bottom: 6px;
+}
+
+.h1 {
+  margin: 0;
+  font-size: clamp(36px, 5vw, 60px);
+  line-height: 1.02;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+}
+
+.italic {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1.1;
+  padding-bottom: 4px;
+  color: #F2A93B;
+}
+
+.body {
+  margin: 0;
+  max-width: 580px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #AEBBD0;
+}
+
+/* ── Judge note ── */
+.judgeNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(13, 19, 32, 0.6);
+  border: 1px dashed;
+  border-radius: 8px;
+  max-width: 640px;
+  margin-top: 4px;
+}
+
+.judgeBadge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.judgeDesc {
+  font-size: 13px;
+  color: #7F8CA3;
+  line-height: 1.5;
+}
+
+.judgeDesc code {
+  font-family: 'JetBrains Mono', monospace;
+  background: #161F31;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  color: #AEBBD0;
+}
+
+/* ── Demo area ── */
+.demoArea {
+  padding: 40px clamp(24px, 8vw, 120px) 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  padding: 4px;
+  background: #161F31;
+  border: 1px solid #2A3650;
+  border-radius: 999px;
+  align-self: flex-start;
+  gap: 0;
+}
+
+.tab {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  background: transparent;
+  color: #7F8CA3;
+  transition: background 0.2s ease, color 0.2s ease;
+  cursor: pointer;
+}
+
+.tab:hover {
+  color: #F3F1EC;
+}
+
+.tabActive {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  background: #F2A93B;
+  color: #0D1320;
+  cursor: pointer;
+}
+
+/* ── Tab content ── */
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inputRow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.filenameInput {
+  padding: 10px 14px;
+  background: #161F31;
+  border: 1px solid #2A3650;
+  border-radius: 8px;
+  color: #F3F1EC;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  width: 280px;
+  max-width: 100%;
+  transition: border-color 0.2s ease;
+}
+
+.filenameInput::placeholder { color: #4A5670; }
+.filenameInput:focus { border-color: #F2A93B; }
+
+.pasteArea {
+  width: 100%;
+  min-height: 280px;
+  padding: 20px;
+  background: #0A0F1A;
+  border: 1px solid #2A3650;
+  border-radius: 10px;
+  color: #DCE3EC;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+}
+
+.pasteArea::placeholder { color: #3A4660; }
+
+.pasteActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ── Buttons ── */
+.btnPrimary {
+  padding: 12px 22px;
+  background: #F2A93B;
+  color: #0D1320;
+  border: none;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.btnPrimary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(242, 169, 59, 0.3);
+}
+
+.btnPrimary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btnSecondary {
+  padding: 11px 20px;
+  background: transparent;
+  color: #F3F1EC;
+  border: 1px solid #2A3650;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.btnSecondary:hover {
+  border-color: #4A5670;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.btnGhost {
+  padding: 11px 18px;
+  background: transparent;
+  color: #7F8CA3;
+  border: 1px solid #1E2940;
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.btnGhost:hover { color: #F3F1EC; border-color: #2A3650; }
+
+/* ── Repo tab ── */
+.repoInputRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.repoInput {
+  flex: 1;
+  min-width: 280px;
+  padding: 12px 16px;
+  background: #161F31;
+  border: 1px solid #2A3650;
+  border-radius: 8px;
+  color: #F3F1EC;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+}
+
+.repoInput::placeholder { color: #4A5670; }
+.repoInput:focus { border-color: #F2A93B; }
+
+.demoRepoNote {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+
+.demoLink {
+  background: none;
+  border: none;
+  color: #F2A93B;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px dashed #5A4520;
+  transition: background 0.2s ease;
+}
+
+.demoLink:hover { background: rgba(242, 169, 59, 0.08); }
+
+.repoRules {
+  font-size: 12px;
+  color: #4A5670;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Scanning bar ── */
+.scanning {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: #0A0F1A;
+  border: 1px solid #2A3650;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #7F8CA3;
+  overflow: hidden;
+  position: relative;
+}
+
+.scanBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #F2A93B;
+  box-shadow: 0 0 16px 4px rgba(242, 169, 59, 0.35);
+  animation: sweep 1.2s linear infinite;
+}
+
+@keyframes sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ── Results ── */
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: #161F31;
+  border: 1px solid #2A3650;
+  border-radius: 12px;
+  padding: 28px;
+  animation: fadein 0.3s ease-out;
+}
+
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.repoMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #2A3650;
+}
+
+.repoName {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: #F3F1EC;
+  font-weight: 600;
+}
+
+.repoStats {
+  font-size: 13px;
+  color: #7F8CA3;
+}
+
+.verdictRow {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.verdictWord {
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.verdictScore {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  color: #AEBBD0;
+}
+
+/* ── Findings ── */
+.noFindings {
+  font-size: 15px;
+  color: #3CC2AE;
+  padding: 8px 0;
+}
+
+.findingsTable {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.findingRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  background: #0A0F1A;
+  border: 1px solid #2A3650;
+  border-radius: 8px;
+  border-left: 3px solid #F2A93B;
+}
+
+.findingMeta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+
+.findingFile {
+  color: #F2A93B;
+  word-break: break-all;
+}
+
+.findingLine {
+  color: #F2A93B;
+}
+
+.findingRule {
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #2A2415;
+  color: #F2A93B;
+  border: 1px solid #5A4520;
+  font-size: 11px;
+}
+
+.findingSnippet {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #DCE3EC;
+  word-break: break-all;
+  white-space: pre-wrap;
+  background: none;
+}
+
+/* ── Error ── */
+.errorMsg {
+  padding: 12px 16px;
+  background: rgba(242, 169, 59, 0.08);
+  border: 1px solid #5A4520;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #F2A93B;
+}

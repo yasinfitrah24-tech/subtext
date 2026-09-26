@@ -1,0 +1,115 @@
+/* Global styles for Subtext website */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap');
+
+:root {
+  --bg: #0D1320;
+  --surface: #161F31;
+  --deep: #0A0F1A;
+  --amber: #F2A93B;
+  --teal: #3CC2AE;
+  --text: #F3F1EC;
+  --muted: #7F8CA3;
+  --border: #1E2940;
+  --border2: #2A3650;
+  --subtext: #AEBBD0;
+  --subtle: #DCE3EC;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-variant-ligatures: none;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--amber);
+  text-decoration: none;
+}
+
+a:hover {
+  color: #F7C572;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+textarea, input {
+  font-family: inherit;
+}
+
+textarea:focus, input:focus {
+  outline: 2px solid var(--amber);
+  outline-offset: -2px;
+}
+
+/* Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3A4660 transparent;
+}
+
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: #2A3650; border-radius: 999px; border: 2px solid var(--bg); }
+*::-webkit-scrollbar-thumb:hover { background: var(--amber); }
+
+/* Animations */
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes sweep {
+  from { top: 0%; }
+  to { top: 100%; }
+}
+
+@keyframes drift {
+  0% { background-position: 70% 20%; }
+  100% { background-position: 95% 45%; }
+}
+
+@keyframes march {
+  to { background-position: 24px 0; }
+}
+
+@keyframes caret {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.fade-in {
+  animation: fadein 0.4s ease-out both;
+}
+
+/* Code */
+code, .mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Verdict badges */
+.verdict-SAFE { color: var(--teal); }
+.verdict-REVIEW { color: var(--amber); }
+.verdict-BLOCK { color: var(--amber); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

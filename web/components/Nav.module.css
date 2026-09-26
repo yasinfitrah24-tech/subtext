@@ -1,0 +1,69 @@
+.nav {
+  height: 72px;
+  flex-shrink: 0;
+  z-index: 10;
+  box-sizing: border-box;
+  padding: 0 clamp(24px, 8vw, 120px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #1E2940;
+  background: rgba(13, 19, 32, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #F3F1EC;
+  text-decoration: none;
+}
+
+.logoText {
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.3px;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-size: 15px;
+}
+
+.link {
+  padding: 6px 0;
+  text-decoration: none;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.ghBtn {
+  padding: 9px 18px;
+  border: 1px solid #2A3650;
+  border-radius: 999px;
+  color: #F3F1EC;
+  text-decoration: none;
+  font-size: 14px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.ghBtn:hover {
+  border-color: #4A5670;
+  background: rgba(255, 255, 255, 0.03);
+  color: #F3F1EC;
+}
+
+@media (max-width: 640px) {
+  .links {
+    gap: 14px;
+    font-size: 13px;
+  }
+  .logoText {
+    display: none;
+  }
+}

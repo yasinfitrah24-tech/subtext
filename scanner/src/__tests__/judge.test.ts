@@ -48,7 +48,16 @@ describe("parseGuardianResponse", () => {
     expect(guardian_risk).toBe(false);
   });
 
-  it("extracts last sentence as reason", () => {
+  it("extracts the most informative sentence as reason", () => {
+    // The second sentence contains signal words (injection, prompt) so it
+    // should be preferred over the last sentence even though it comes earlier.
+    const raw =
+      "First sentence. The snippet contains a prompt injection instruction that overrides the agent. Third and final sentence. <score> yes </score>";
+    const { reason } = parseGuardianResponse(raw);
+    expect(reason).toMatch(/prompt injection instruction/);
+  });
+
+  it("falls back to last sentence when no sentence contains signal words", () => {
     const raw =
       "First sentence. Second sentence. Third and final sentence. <score> yes </score>";
     const { reason } = parseGuardianResponse(raw);

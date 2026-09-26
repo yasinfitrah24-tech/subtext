@@ -1,0 +1,163 @@
+.header {
+  padding: 90px clamp(24px, 8vw, 120px) 70px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-bottom: 1px solid #1E2940;
+}
+
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: #F2A93B;
+  margin-bottom: 6px;
+}
+
+.h1 {
+  margin: 0;
+  font-size: clamp(36px, 5vw, 60px);
+  line-height: 1.02;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+}
+
+.italic {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1.1;
+  padding-bottom: 4px;
+  color: #F2A93B;
+}
+
+.h2 {
+  margin: 0 0 12px;
+  font-size: clamp(24px, 3vw, 36px);
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.8px;
+}
+
+.body {
+  margin: 0 0 20px;
+  max-width: 720px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #AEBBD0;
+}
+
+.ic {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9em;
+  background: #161F31;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #AEBBD0;
+}
+
+/* ── Sections ── */
+.section {
+  padding: 60px clamp(24px, 8vw, 120px);
+  border-bottom: 1px solid #1E2940;
+  position: relative;
+}
+
+.sectionNum {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #F2A93B;
+  margin-bottom: 12px;
+}
+
+/* ── Code blocks ── */
+.codeBlock {
+  background: #0A0F1A;
+  border: 1px solid #2A3650;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.codeHeader {
+  padding: 10px 20px;
+  border-bottom: 1px solid #1E2940;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #7F8CA3;
+  letter-spacing: 0.5px;
+}
+
+.pre {
+  margin: 0;
+  padding: 20px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #DCE3EC;
+}
+
+.pre code {
+  font-family: inherit;
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+.note {
+  font-size: 14px;
+  color: #7F8CA3;
+  margin: 0;
+}
+
+/* ── Provider cards ── */
+.providerGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.providerCard {
+  background: #161F31;
+  border: 1px solid #2A3650;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.providerTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #F3F1EC;
+}
+
+.providerDesc {
+  font-size: 14px;
+  color: #AEBBD0;
+  line-height: 1.5;
+}
+
+/* ── Info note ── */
+.noteCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  background: rgba(242, 169, 59, 0.06);
+  border: 1px dashed #5A4520;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #AEBBD0;
+  line-height: 1.5;
+}
+
+.noteIcon {
+  color: #F2A93B;
+  flex-shrink: 0;
+  font-size: 16px;
+}
