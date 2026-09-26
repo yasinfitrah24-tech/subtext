@@ -25,7 +25,10 @@ export type RuleId =
   | "BIDI_OVERRIDE"
   | "BASE64_INSTRUCTION"
   | "EXFILTRATION_URL"
-  | "HTML_ATTR_INJECTION";
+  | "HTML_ATTR_INJECTION"
+  | "REMOTE_EXEC"
+  | "COERCION"
+  | "SUPPLY_CHAIN_INJECT";
 
 /**
  * A rule returns every Finding it discovers in the given file content.

@@ -1,6 +1,45 @@
 import { Finding, Rule } from "./types";
 
 // ---------------------------------------------------------------------------
+// Helper: test whether a U+200D (ZWJ) in `line` is sandwiched between emoji
+// codepoints (i.e. legitimate family/profession emoji sequences).
+// We detect emoji using the broad Unicode range for emoji and emoji modifiers.
+// ---------------------------------------------------------------------------
+function isEmojiZwj(line: string, zwjIndex: number): boolean {
+  // `zwjIndex` is the UTF-16 string offset of the U+200D character.
+  // We need the codepoint neighbours (left and right of ZWJ).
+  // Spread into actual Unicode codepoints and walk to find the ZWJ position.
+  const codePoints = [...line]; // surrogate pairs → single entry each
+
+  function isEmojiCp(ch: string | undefined): boolean {
+    if (!ch) return false;
+    const cp = ch.codePointAt(0)!;
+    // Variation selectors, skin tone modifiers
+    if (cp === 0xFE0F || cp === 0xFE0E) return true;
+    if (cp >= 0x1F3FB && cp <= 0x1F3FF) return true;
+    // Core emoji ranges
+    if (cp >= 0x1F000 && cp <= 0x1FFFF) return true; // misc supplemental (includes most emoji)
+    if (cp >= 0x2600 && cp <= 0x27BF) return true;   // misc symbols & dingbats
+    if (cp >= 0x1F900 && cp <= 0x1F9FF) return true; // supplemental symbols
+    if (cp >= 0x1FA00 && cp <= 0x1FAFF) return true; // extended pictographic
+    // Gender / role signs commonly used in ZWJ sequences
+    if (cp === 0x2640 || cp === 0x2642 || cp === 0x2695 || cp === 0x2696 || cp === 0x2708) return true;
+    return false;
+  }
+
+  // Find the codepoint index of the ZWJ by accumulating UTF-16 lengths
+  let utf16Offset = 0;
+  for (let cpIdx = 0; cpIdx < codePoints.length; cpIdx++) {
+    if (utf16Offset === zwjIndex) {
+      // codePoints[cpIdx] is the ZWJ; check neighbours
+      return isEmojiCp(codePoints[cpIdx - 1]) && isEmojiCp(codePoints[cpIdx + 1]);
+    }
+    utf16Offset += codePoints[cpIdx].length; // .length is 2 for surrogate pairs, 1 otherwise
+  }
+  return false;
+}
+
+// ---------------------------------------------------------------------------
 // Helper: create a Finding from a line match
 // ---------------------------------------------------------------------------
 function finding(
@@ -103,27 +142,47 @@ export const ruleActionVerbNearSecret: Rule = {
 
 // ---------------------------------------------------------------------------
 // Rule 4 — Zero-width and invisible Unicode characters
+// U+200D (ZWJ) is excluded when it appears between emoji codepoints (e.g.
+// family emoji 👨‍👩‍👧) to avoid false positives on legitimate emoji sequences.
 // ---------------------------------------------------------------------------
 export const ruleZeroWidthChars: Rule = {
   id: "ZERO_WIDTH_CHARS",
   weight: 30,
   check(content, lines, filePath) {
     const findings: Finding[] = [];
-    // Zero-width space, non-joiner, joiner, word-joiner, soft-hyphen,
-    // invisible separator, zero-width no-break space (BOM inside text)
+    // Zero-width space (200B), non-joiner (200C), joiner (200D),
+    // word-joiner (2060), invisible function applicator (2061-2064),
+    // soft-hyphen (00AD), zero-width no-break space / BOM (FEFF)
     const zwPattern =
-      /[\u00AD\u200B\u200C\u200D\u2060\u2061\u2062\u2063\u2064\uFEFF]/;
+      /[\u00AD\u200B\u200C\u200D\u2060\u2061\u2062\u2063\u2064\uFEFF]/g;
 
     lines.forEach((line, i) => {
-      if (zwPattern.test(line)) {
+      // Quick pre-test before detailed scan
+      if (!/[\u00AD\u200B\u200C\u200D\u2060\u2061\u2062\u2063\u2064\uFEFF]/.test(line)) return;
+
+      // Check each invisible character individually
+      let hasRealHit = false;
+      let m: RegExpExecArray | null;
+      zwPattern.lastIndex = 0;
+      while ((m = zwPattern.exec(line)) !== null) {
+        const cp = m[0].codePointAt(0)!;
+        // U+200D (ZWJ) inside an emoji sequence is benign
+        if (cp === 0x200D && isEmojiZwj(line, m.index)) continue;
+        hasRealHit = true;
+        break;
+      }
+
+      if (hasRealHit) {
         // Show escaped representation so hidden chars are visible in output
         const escaped = line.replace(
           /[\u00AD\u200B\u200C\u200D\u2060\u2061\u2062\u2063\u2064\uFEFF]/g,
-          (c) => `<U+${c.codePointAt(0)!.toString(16).toUpperCase().padStart(4, "0")}>`
+          (c, offset) => {
+            const cp2 = c.codePointAt(0)!;
+            if (cp2 === 0x200D && isEmojiZwj(line, offset)) return c;
+            return `<U+${cp2.toString(16).toUpperCase().padStart(4, "0")}>`;
+          }
         );
-        findings.push(
-          finding(filePath, i + 1, "ZERO_WIDTH_CHARS", escaped)
-        );
+        findings.push(finding(filePath, i + 1, "ZERO_WIDTH_CHARS", escaped));
       }
     });
     return findings;
@@ -255,6 +314,125 @@ export const ruleHtmlAttrInjection: Rule = {
 };
 
 // ---------------------------------------------------------------------------
+// Rule 9 — Remote-exec patterns
+// Detects: curl|bash, wget|sh, PowerShell IEX/DownloadString,
+//          exec/eval of fetched content (requests.get, urllib, fetch, etc.)
+//          and DNS-TXT-exec (dig TXT + bash -c).
+// Rate: REVIEW by default (weight 25); combined with AI-addressed instruction
+// the score climbs to BLOCK territory.
+// ---------------------------------------------------------------------------
+export const ruleRemoteExec: Rule = {
+  id: "REMOTE_EXEC",
+  weight: 25,
+  check(content, lines, filePath) {
+    const findings: Finding[] = [];
+
+    // Pattern 1: pipe-to-shell  curl … | bash/sh/zsh/ash/dash
+    const curlPipe = /\b(curl|wget)\b[^|\n]*\|\s*(ba)?sh\b/i;
+    // Pattern 2: wget -O- … | sh  (already covered above, but be explicit)
+    const wgetPipe = /\bwget\b[^|\n]*\|\s*(ba)?sh\b/i;
+    // Pattern 3: PowerShell download-and-execute
+    const psIex = /\b(IEX|Invoke-Expression)\s*[\(\s]|\.DownloadString\s*\(/i;
+    // Pattern 4: exec/eval of fetched content in Python/JS/Ruby etc.
+    const execFetch =
+      /\b(exec|eval|compile)\s*\(\s*(?:[\w.]+\.(?:get|fetch|urlopen|read|text|content|decode)\s*[\(\[]|base64\.b64decode\s*\()/i;
+    // Pattern 5: bash -c "$(dig … TXT …)" style DNS-exfil exec
+    const dnsTxtExec = /\bbash\s+-c\s+["'`]\s*\$\(\s*dig\b/i;
+    // Pattern 6: generic: shell -c "$(...)" with a download tool inside
+    const shellCmdSub = /\b(?:ba)?sh\s+-c\s+["'`][^"'`]*\$\(\s*(?:curl|wget|dig|nslookup)/i;
+
+    const patterns = [curlPipe, wgetPipe, psIex, execFetch, dnsTxtExec, shellCmdSub];
+
+    lines.forEach((line, i) => {
+      for (const pat of patterns) {
+        if (pat.test(line)) {
+          findings.push(finding(filePath, i + 1, "REMOTE_EXEC", line));
+          break;
+        }
+      }
+    });
+    return findings;
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Rule 10 — Coercion: telling the AI to hide actions or fake error messages
+// ---------------------------------------------------------------------------
+export const ruleCoercion: Rule = {
+  id: "COERCION",
+  weight: 30,
+  check(content, lines, filePath) {
+    const findings: Finding[] = [];
+
+    // Hiding actions from the user
+    const hideAction =
+      /\b(do\s+not|don'?t)\s+(tell|inform|notify|mention|show|warn|ask|let)\s+(the\s+)?(user|developer|human|operator)\b/i;
+    // "silently", "without telling/informing/notifying the user"
+    const silentAction =
+      /\bsilently\s+(?:add|insert|inject|include|modify|delete|remove|run|execute|call|append|update|change)\b/i;
+    // Fake-error coercion: "if you see [error], [the AI should] run ..."
+    // Handles: backtick-quoted errors, plain names, with optional "the AI/assistant"
+    const fakeError =
+      /(?:if\s+you\s+see|when\s+you\s+(?:see|encounter|get))\s+[`'"]?[\w\s:.-]{2,}?[`'"]?\s*,\s*(?:the\s+)?(?:ai\s+)?(?:assistant|agent)?\s*(?:should\s+)?(?:immediately\s+)?(?:run|execute|call|invoke)/i;
+    // "do not ask the user [first/before/for permission]"
+    const doNotAsk =
+      /\b(do\s+not|don'?t)\s+ask\s+(the\s+)?(user|developer|human)\b/i;
+    // "without user [consent/permission/knowledge/approval]"
+    const withoutConsent =
+      /\bwithout\s+(?:the\s+)?(?:user(?:'s)?|developer(?:'s)?|human(?:'s)?)\s+(?:consent|permission|knowledge|approval|asking)\b/i;
+
+    const patterns = [hideAction, silentAction, fakeError, doNotAsk, withoutConsent];
+
+    lines.forEach((line, i) => {
+      for (const pat of patterns) {
+        if (pat.test(line)) {
+          findings.push(finding(filePath, i + 1, "COERCION", line));
+          break;
+        }
+      }
+    });
+    return findings;
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Rule 11 — Supply-chain: instructions to inject external scripts/remote code
+// into generated output
+// ---------------------------------------------------------------------------
+export const ruleSupplyChainInject: Rule = {
+  id: "SUPPLY_CHAIN_INJECT",
+  weight: 30,
+  check(content, lines, filePath) {
+    const findings: Finding[] = [];
+
+    // Instructions telling the AI to add an external <script src="..."> tag
+    const scriptInject =
+      /<script\s[^>]*src\s*=\s*["']?https?:\/\/[^"'\s>]+["']?[^>]*>/i;
+    // Instructions to include/add/insert an external script tag in generated HTML
+    const includeScriptInstruction =
+      /(?:include|add|insert|inject|append|embed)\s+[`<"']?\s*<script\s[^>]*src\s*=\s*["']?https?:\/\//i;
+    // Instructions to load remote code (import from URL, require from URL)
+    const remoteImport =
+      /(?:import|require)\s*\(\s*["']https?:\/\/[^"']+["']\s*\)/i;
+    // "every generated … must include <script src=..."
+    const mustIncludeScript =
+      /(?:every|all|each)\s+generated\s+\w+\s+(?:must|should|needs?\s+to)\s+include\s+[`<"']?\s*<script/i;
+
+    const patterns = [scriptInject, includeScriptInstruction, remoteImport, mustIncludeScript];
+
+    lines.forEach((line, i) => {
+      for (const pat of patterns) {
+        if (pat.test(line)) {
+          findings.push(finding(filePath, i + 1, "SUPPLY_CHAIN_INJECT", line));
+          break;
+        }
+      }
+    });
+    return findings;
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Export all rules in execution order (cheapest / most common first)
 // ---------------------------------------------------------------------------
 export const ALL_RULES: Rule[] = [
@@ -266,4 +444,7 @@ export const ALL_RULES: Rule[] = [
   ruleBase64Instruction,
   ruleExfiltrationUrl,
   ruleHtmlAttrInjection,
+  ruleRemoteExec,
+  ruleCoercion,
+  ruleSupplyChainInject,
 ];

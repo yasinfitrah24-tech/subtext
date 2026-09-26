@@ -22,7 +22,7 @@ import { Verdict } from "../scanner/src/types";
 // Paths (all relative to workspace root)
 // ---------------------------------------------------------------------------
 const WORKSPACE_ROOT = path.resolve(__dirname, "..");
-const DATASET_ROOT = path.join(WORKSPACE_ROOT, "subtext-dataset", "dataset");
+const DATASET_ROOT = path.join(WORKSPACE_ROOT, "dataset");
 const MALICIOUS_DIR = path.join(DATASET_ROOT, "malicious");
 const BENIGN_DIR = path.join(DATASET_ROOT, "benign");
 const LABELS_CSV = path.join(DATASET_ROOT, "labels.csv");

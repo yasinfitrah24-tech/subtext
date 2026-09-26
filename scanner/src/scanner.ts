@@ -12,6 +12,14 @@ const SCANNABLE_EXTENSIONS = new Set([
   ".sh", ".bash", ".zsh", ".fish", ".ps1",
   ".css", ".scss", ".sass", ".less",
   ".csv", ".rst", ".tex",
+  // AI coding-agent config files (treat as data — never execute)
+  ".cursorrules", ".windsurfrules", ".mdc",
+]);
+
+// Extensionless filenames that are always scanned
+const SCANNABLE_BASENAMES = new Set([
+  "AGENTS.md", "CLAUDE.md",
+  "copilot-instructions.md",  // matched by extension above, but listed for clarity
 ]);
 
 // Maximum file size to scan (4 MB) — larger files are skipped for performance
@@ -29,7 +37,8 @@ export interface FileScanResult {
  */
 export function scanFile(filePath: string): FileScanResult {
   const ext = path.extname(filePath).toLowerCase();
-  if (!SCANNABLE_EXTENSIONS.has(ext)) {
+  const base = path.basename(filePath);
+  if (!SCANNABLE_EXTENSIONS.has(ext) && !SCANNABLE_BASENAMES.has(base)) {
     return { file: filePath, findings: [], skipped: "unsupported extension" };
   }
 
