@@ -1,5 +1,21 @@
+import { useState, useCallback } from 'react';
 import Layout from '../components/Layout';
 import styles from '../styles/Setup.module.css';
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = useCallback(() => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [text]);
+  return (
+    <button className={styles.copyBtn} onClick={copy} aria-label="Copy to clipboard">
+      {copied ? 'Copied' : 'Copy'}
+    </button>
+  );
+}
 
 export default function SetupPage() {
   return (
@@ -20,8 +36,11 @@ export default function SetupPage() {
         <h2 className={styles.h2}>Install the scanner</h2>
         <p className={styles.body}>Clone the repo and install dependencies from the <code className={styles.ic}>/scanner</code> folder.</p>
         <div className={styles.codeBlock}>
-          <div className={styles.codeHeader}>Terminal</div>
-          <pre className={styles.pre}><code>{`git clone https://github.com/ibm-build-lab/subtext.git
+          <div className={styles.codeHeader}>
+            <span>Terminal</span>
+            <CopyButton text={`git clone https://github.com/yasinfitrah24-tech/subtext.git\ncd subtext/scanner\nnpm install\nnpm run build`} />
+          </div>
+          <pre className={styles.pre}><code>{`git clone https://github.com/yasinfitrah24-tech/subtext.git
 cd subtext/scanner
 npm install
 npm run build`}</code></pre>
@@ -35,7 +54,10 @@ npm run build`}</code></pre>
         <h2 className={styles.h2}>Scan a repo</h2>
         <p className={styles.body}>Point the scanner at any local directory. It reads every text file and returns a score, verdict, and list of findings.</p>
         <div className={styles.codeBlock}>
-          <div className={styles.codeHeader}>Scan a cloned repo</div>
+          <div className={styles.codeHeader}>
+            <span>Scan a cloned repo</span>
+            <CopyButton text={`# Scan a cloned repo\nnpx ts-node src/index.ts ../some-repo --verbose\n\n# With the Granite Guardian judge step (requires Ollama or watsonx env vars)\nnpx ts-node src/index.ts ../some-repo --judge --verbose`} />
+          </div>
           <pre className={styles.pre}><code>{`# Scan a cloned repo
 npx ts-node src/index.ts ../some-repo --verbose
 
@@ -53,7 +75,10 @@ npx ts-node src/index.ts ../some-repo --judge --verbose`}</code></pre>
           Bob&rsquo;s <strong>Security Gate</strong> mode treats repo content as data and never as instructions. It runs Subtext automatically and only hands off to Agent mode when the verdict is SAFE.
         </p>
         <div className={styles.codeBlock}>
-          <div className={styles.codeHeader}>Bob workflow</div>
+          <div className={styles.codeHeader}>
+            <span>Bob workflow</span>
+            <CopyButton text={`# In Bob: switch to Security Gate mode, then:\n1. Paste or provide the repo path\n2. Bob runs subtext scan automatically\n3. Findings surface before any agent reads the files\n4. SAFE → continue in Agent mode\n   REVIEW/BLOCK → inspect findings first`} />
+          </div>
           <pre className={styles.pre}><code>{`# In Bob: switch to Security Gate mode, then:
 1. Paste or provide the repo path
 2. Bob runs subtext scan automatically
@@ -74,6 +99,10 @@ npx ts-node src/index.ts ../some-repo --judge --verbose`}</code></pre>
             <div className={styles.providerTitle}>Ollama (local)</div>
             <div className={styles.providerDesc}>Pull <code className={styles.ic}>granite4.1-guardian:8b-q4_K_M</code> and set <code className={styles.ic}>OLLAMA_URL</code>.</div>
             <div className={styles.codeBlock}>
+              <div className={styles.codeHeader}>
+                <span />
+                <CopyButton text={`ollama pull granite4.1-guardian:8b-q4_K_M\n# .env\nOLLAMA_URL=http://localhost:11434`} />
+              </div>
               <pre className={styles.pre}><code>{`ollama pull granite4.1-guardian:8b-q4_K_M
 # .env
 OLLAMA_URL=http://localhost:11434`}</code></pre>
@@ -83,6 +112,10 @@ OLLAMA_URL=http://localhost:11434`}</code></pre>
             <div className={styles.providerTitle}>watsonx.ai (cloud)</div>
             <div className={styles.providerDesc}>Set three env vars. The scanner exchanges your API key for an IAM token automatically.</div>
             <div className={styles.codeBlock}>
+              <div className={styles.codeHeader}>
+                <span />
+                <CopyButton text={`# .env\nWATSONX_API_KEY=your-ibm-cloud-api-key\nWATSONX_PROJECT_ID=your-project-id\nWATSONX_URL=https://us-south.ml.cloud.ibm.com`} />
+              </div>
               <pre className={styles.pre}><code>{`# .env
 WATSONX_API_KEY=your-ibm-cloud-api-key
 WATSONX_PROJECT_ID=your-project-id
@@ -103,7 +136,10 @@ WATSONX_URL=https://us-south.ml.cloud.ibm.com`}</code></pre>
         <h2 className={styles.h2}>CI / pre-merge gate</h2>
         <p className={styles.body}>Add Subtext as a CI step to block BLOCK-verdict PRs before they&rsquo;re merged.</p>
         <div className={styles.codeBlock}>
-          <div className={styles.codeHeader}>GitHub Actions example</div>
+          <div className={styles.codeHeader}>
+            <span>GitHub Actions example</span>
+            <CopyButton text={`- name: Scan for prompt injections\n  run: |\n    cd scanner\n    npm ci\n    npm run build\n    node dist/index.js ../. --verbose\n  # Exit code 2 = BLOCK — fails the workflow`} />
+          </div>
           <pre className={styles.pre}><code>{`- name: Scan for prompt injections
   run: |
     cd scanner

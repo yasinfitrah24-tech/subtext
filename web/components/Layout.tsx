@@ -38,7 +38,7 @@ export default function Layout({ children, title, description }: LayoutProps) {
           color: '#7F8CA3',
         }}>
           <span>Built with IBM Bob + Granite</span>
-          <span>MIT License · <a href="https://github.com/ibm-build-lab/subtext" style={{ color: '#7F8CA3' }}>GitHub</a></span>
+          <span>MIT License · <a href="https://github.com/yasinfitrah24-tech/subtext" style={{ color: '#7F8CA3' }}>GitHub</a></span>
         </footer>
       </div>
     </>

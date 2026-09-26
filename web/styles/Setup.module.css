@@ -87,6 +87,28 @@
   font-size: 12px;
   color: #7F8CA3;
   letter-spacing: 0.5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.copyBtn {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border: 1px solid #2A3650;
+  border-radius: 999px;
+  background: transparent;
+  color: #7F8CA3;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.copyBtn:hover {
+  border-color: #F2A93B;
+  color: #F2A93B;
 }
 
 .pre {

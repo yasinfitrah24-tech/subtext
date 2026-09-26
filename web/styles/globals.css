@@ -93,6 +93,64 @@ textarea:focus, input:focus {
   50%, 100% { opacity: 0; }
 }
 
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes pop {
+  0%   { opacity: 0; transform: scale(.85); }
+  60%  { opacity: 1; transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes cardsweep {
+  0%        { top: -10%; opacity: 0; }
+  8%        { opacity: 1; }
+  40%       { top: 105%; opacity: 1; }
+  41%, 100% { top: 105%; opacity: 0; }
+}
+
+@keyframes glowline {
+  0%, 100% { background: rgba(242,169,59,.10); }
+  50%       { background: rgba(242,169,59,.24); }
+}
+
+@keyframes chipglow {
+  0%, 100% { box-shadow: none; }
+  50%       { box-shadow: 0 0 0 3px rgba(242,169,59,.25); }
+}
+
+@keyframes ring {
+  0%, 12%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  4%            { box-shadow: 0 0 0 8px rgba(242,169,59,.22), 0 10px 30px rgba(0,0,0,.35); }
+}
+
+/* Global animation utility classes */
+.rise {
+  opacity: 0;
+  animation: rise 0.7s cubic-bezier(.2,.7,.2,1) forwards;
+}
+.d1 { animation-delay: .08s; }
+.d2 { animation-delay: .2s; }
+.d3 { animation-delay: .32s; }
+.d4 { animation-delay: .44s; }
+.d5 { animation-delay: .56s; }
+.d6 { animation-delay: .7s; }
+
+.riseIn {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.glowline {
+  animation: glowline 2.4s ease-in-out infinite;
+}
+
+.chipglow {
+  animation: chipglow 2.4s ease-in-out infinite;
+}
+
 .fade-in {
   animation: fadein 0.4s ease-out both;
 }
@@ -111,5 +169,11 @@ code, .mono {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+  /* Ensure initially-hidden elements show when motion is reduced */
+  .rise, .riseIn {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
   }
 }

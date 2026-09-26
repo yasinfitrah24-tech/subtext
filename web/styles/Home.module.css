@@ -1,11 +1,21 @@
-/* ── Hero ── */
+/* ── Hero ──
+   Note: .rise, .d1-.d6, .riseIn, .glowline, .chipglow are global utility
+   classes defined in globals.css. They are used via className="" in JSX.
+── */
 .hero {
   padding: 96px clamp(24px, 8vw, 120px) 110px;
   display: flex;
   align-items: center;
   gap: 72px;
   background-image: radial-gradient(700px circle at 50% 50%, rgba(242,169,59,0.08), transparent 60%);
+  background-size: 180% 180%;
+  background-repeat: no-repeat;
+  animation: drift 14s ease-in-out infinite alternate;
   flex-wrap: wrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero { animation: none; }
 }
 
 .heroLeft {
@@ -127,7 +137,35 @@
   color: #F3F1EC;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .ctaPrimary,
+  .ctaSecondary { transition: none; }
+}
+
 /* ── Scan card ── */
+.cardscan {
+  position: relative;
+  overflow: hidden;
+}
+
+/* amber scan-line sweep */
+.cardbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #F2A93B;
+  box-shadow: 0 0 22px 6px rgba(242,169,59,.35);
+  animation: cardsweep 4.5s ease-in-out 1s infinite;
+  opacity: 0;
+  pointer-events: none;
+  top: -10%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cardbar { animation: none; opacity: 0; }
+}
+
 .card {
   width: min(480px, 100%);
   flex-shrink: 0;
@@ -139,6 +177,16 @@
   flex-direction: column;
   gap: 18px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  border-color: #F7C572;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
 }
 
 .cardHeader {
@@ -168,9 +216,8 @@
   animation: caret 1s steps(1) infinite;
 }
 
-@keyframes caret {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .caret { animation: none; }
 }
 
 .chip {
@@ -188,6 +235,17 @@
   align-items: baseline;
 }
 
+/* BLOCK label pop-in */
+.popin {
+  display: inline-block;
+  opacity: 0;
+  animation: pop 0.6s ease-out 1.5s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popin { opacity: 1; animation: none; }
+}
+
 .verdictLabel {
   font-size: clamp(40px, 5vw, 60px);
   font-weight: 700;
@@ -203,6 +261,19 @@
 .divider {
   height: 1px;
   background: #2A3650;
+}
+
+/* Findings stagger in */
+.findin > div {
+  opacity: 0;
+  animation: rise 0.45s ease-out forwards;
+}
+.findin > div:nth-child(1) { animation-delay: 1.8s; }
+.findin > div:nth-child(2) { animation-delay: 2.0s; }
+.findin > div:nth-child(3) { animation-delay: 2.2s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .findin > div { opacity: 1; animation: none; }
 }
 
 .findings {
@@ -242,6 +313,19 @@
   display: flex;
   flex-direction: column;
   gap: 56px;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s cubic-bezier(.2,.7,.2,1), transform 0.7s cubic-bezier(.2,.7,.2,1);
+}
+
+/* .riseIn (global, from globals.css) overrides opacity/transform when visible */
+
+@media (prefers-reduced-motion: reduce) {
+  .problem {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 .eyebrow {
@@ -280,6 +364,15 @@
   gap: 14px;
   border-top: 2px solid #2A3650;
   padding-top: 28px;
+  transition: border-color 0.2s ease;
+}
+
+.statCard:hover {
+  border-color: #F2A93B;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statCard { transition: none; }
 }
 
 .statNum {
@@ -308,6 +401,19 @@
   display: flex;
   flex-direction: column;
   gap: 48px;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s cubic-bezier(.2,.7,.2,1), transform 0.7s cubic-bezier(.2,.7,.2,1);
+}
+
+/* .riseIn (global, from globals.css) overrides opacity/transform when visible */
+
+@media (prefers-reduced-motion: reduce) {
+  .results {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 .resultsGrid {
@@ -377,31 +483,4 @@
   padding: 2px 6px;
   border-radius: 4px;
   color: #AEBBD0;
-}
-
-/* ── Footer CTA ── */
-.footerCta {
-  padding: 90px clamp(24px, 8vw, 120px) 80px;
-  border-top: 1px solid #1E2940;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 40px;
-}
-
-.footerH {
-  font-size: clamp(40px, 5vw, 64px);
-  font-weight: 700;
-  letter-spacing: -2px;
-  line-height: 1.05;
-}
-
-.footerItalic {
-  font-family: 'Instrument Serif', Georgia, serif;
-  font-style: italic;
-  font-size: clamp(46px, 6vw, 80px);
-  line-height: 1.1;
-  padding-bottom: 4px;
-  color: #F2A93B;
 }

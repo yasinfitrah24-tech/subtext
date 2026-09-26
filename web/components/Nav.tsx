@@ -47,7 +47,7 @@ export default function Nav() {
           );
         })}
         <a
-          href="https://github.com/ibm-build-lab/subtext"
+          href="https://github.com/yasinfitrah24-tech/subtext"
           className={styles.ghBtn}
           target="_blank"
           rel="noopener noreferrer"
