@@ -109,4 +109,5 @@ See [`DATA_SOURCES.md`](DATA_SOURCES.md).
 ## License
 MIT
 
-**Live demo:** coming soon!
+
+  **Live demo:** coming soon
