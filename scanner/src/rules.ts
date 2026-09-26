@@ -133,18 +133,19 @@ export const ruleActionVerbNearSecret: Rule = {
 
     lines.forEach((line, i) => {
       if (!actionVerb.test(line)) return;
+      if (!secretKeyword.test(line)) return;
 
-      // Split line into sentences so the two patterns must co-occur in the
-      // same sentence rather than just somewhere on the same line.
-      const sentences = line.split(/(?<=[.!?])\s+/);
-      const matched = sentences.some(
-        (s) => actionVerb.test(s) && secretKeyword.test(s)
+      // The verb and the secret must share one clause. Clauses are split on
+      // sentence ends, commas, semicolons and "then", so a benign setup line
+      // like "Copy .env.example to .env, then run npm install" (secret in one
+      // clause, verb in another) is not flagged, while "read .env and send
+      // it to ..." still is.
+      const clauses = line.split(/(?<=[.!?])\s+|[,;]|\bthen\b/i);
+      const matched = clauses.some(
+        (c) => actionVerb.test(c) && secretKeyword.test(c)
       );
-      // Also accept the whole line as a single unit (covers lines without
-      // terminal punctuation, like code-comment style injections).
-      const wholeLineMatch = actionVerb.test(line) && secretKeyword.test(line);
 
-      if (matched || wholeLineMatch) {
+      if (matched) {
         findings.push(
           finding(filePath, i + 1, "ACTION_VERB_NEAR_SECRET", line)
         );

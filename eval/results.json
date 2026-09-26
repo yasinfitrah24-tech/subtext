@@ -1,5 +1,5 @@
 {
-  "runAt": "2026-09-26T12:25:57.759Z",
+  "runAt": "2026-09-26T14:24:26.076Z",
   "summary": {
     "totalFiles": 40,
     "maliciousFiles": 20,
@@ -11,7 +11,7 @@
     "detectionRate": 0.85,
     "falsePositiveRate": 0,
     "accuracy": 0.925,
-    "avgTimingMs": 0.42
+    "avgTimingMs": 0.3
   },
   "perCategory": {
     "hidden-instruction": {
@@ -179,7 +179,7 @@
       "score": 55,
       "flagged": true,
       "correct": true,
-      "timingMs": 7,
+      "timingMs": 8,
       "findings": [
         {
           "rule": "COMMENT_AI_ADDRESSED",
@@ -225,7 +225,7 @@
       "score": 60,
       "flagged": true,
       "correct": true,
-      "timingMs": 2,
+      "timingMs": 1,
       "findings": [
         {
           "rule": "ZERO_WIDTH_CHARS",
@@ -248,7 +248,7 @@
       "score": 30,
       "flagged": true,
       "correct": true,
-      "timingMs": 1,
+      "timingMs": 0,
       "findings": [
         {
           "rule": "BIDI_OVERRIDE",
@@ -320,7 +320,7 @@
       "score": 30,
       "flagged": true,
       "correct": true,
-      "timingMs": 1,
+      "timingMs": 0,
       "findings": [
         {
           "rule": "COERCION",
@@ -355,7 +355,7 @@
       "score": 30,
       "flagged": true,
       "correct": true,
-      "timingMs": 0,
+      "timingMs": 1,
       "findings": [
         {
           "rule": "COERCION",
@@ -421,7 +421,7 @@
       "score": 40,
       "flagged": true,
       "correct": true,
-      "timingMs": 1,
+      "timingMs": 0,
       "findings": [
         {
           "rule": "IGNORE_PREVIOUS_INSTRUCTIONS",
@@ -551,7 +551,7 @@
       "score": 0,
       "flagged": false,
       "correct": true,
-      "timingMs": 1,
+      "timingMs": 0,
       "findings": [],
       "why": "Legit: copy .env.example to .env (mentions .env, but normal)"
     },
@@ -623,7 +623,7 @@
       "score": 0,
       "flagged": false,
       "correct": true,
-      "timingMs": 1,
+      "timingMs": 0,
       "findings": [],
       "why": "Family emoji uses ZWJ legitimately — classic false-positive trap"
     },
@@ -719,7 +719,7 @@
       "score": 0,
       "flagged": false,
       "correct": true,
-      "timingMs": 1,
+      "timingMs": 0,
       "findings": [],
       "why": "Ordinary Makefile targets"
     },
@@ -731,7 +731,7 @@
       "score": 0,
       "flagged": false,
       "correct": true,
-      "timingMs": 0,
+      "timingMs": 1,
       "findings": [],
       "why": "Plain README with badges and description"
     },
@@ -779,7 +779,7 @@
       "score": 0,
       "flagged": false,
       "correct": true,
-      "timingMs": 1,
+      "timingMs": 0,
       "findings": [],
       "why": "License + contact, totally clean"
     }

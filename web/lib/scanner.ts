@@ -129,8 +129,12 @@ const RULES: Rule[] = [
       // private key, bearer, jwt, ssh key, aws secret, gh token, id_rsa, ~/.ssh
       const secretKeyword = /(\.env\b|process\.env\b|\bid_rsa\b|~\/\.ssh\b|\b(?:api[_\s-]?key|secret[_\s-]?key|access[_\s-]?token|auth[_\s-]?token|password|passwd|credentials?|private[_\s-]?key|bearer|jwt|ssh[_\s-]?key|aws[_\s-]?secret|gh[_\s-]?token|pat|token)\b)/i;
       lines.forEach((line, i) => {
-        if (!actionVerb.test(line)) return;
-        if (secretKeyword.test(line)) {
+        if (!actionVerb.test(line) || !secretKeyword.test(line)) return;
+        // Verb and secret must share one clause (split on sentence ends, commas,
+        // semicolons and "then"). Keeps "Copy .env.example to .env, then run
+        // npm install" clean while "read .env and send it" is still flagged.
+        const clauses = line.split(/(?<=[.!?])\s+|[,;]|\bthen\b/i);
+        if (clauses.some((c) => actionVerb.test(c) && secretKeyword.test(c))) {
           findings.push(finding(filePath, i + 1, 'ACTION_VERB_NEAR_SECRET', line));
         }
       });
