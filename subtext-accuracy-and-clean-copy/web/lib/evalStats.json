@@ -1,0 +1,13 @@
+{
+  "detectionRate": 0.85,
+  "falsePositiveRate": 0,
+  "accuracy": 0.925,
+  "totalFiles": 40,
+  "maliciousFiles": 20,
+  "benignFiles": 20,
+  "truePositives": 17,
+  "falseNegatives": 3,
+  "trueNegatives": 20,
+  "falsePositives": 0,
+  "avgTimingMs": 0.53
+}
