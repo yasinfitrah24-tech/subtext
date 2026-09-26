@@ -1,4 +1,153 @@
-'use client';
+# Fix the GitHub repo scan on the Demo page:
+1. Rate limit: currently we call the GitHub API once per file and hit the 60 requests/hour unauthenticated limit. Instead, use ONE call to the git trees API (GET /repos/{owner}/{repo}/git/trees/{branch}?recursive=1) to list files, then download file contents from raw.githubusercontent.com (not counted against the API limit). Optionally use a server-side GITHUB_TOKEN env var if set (never exposed to the browser, never committed).
+2. Support subfolder URLs: https://github.com/owner/repo/tree/<branch>/<path> scans only that path. Add a "Try our poisoned demo" button that fills in https://github.com/yasinfitrah24-tech/subtext/tree/main/demo/node-api-starter.
+3. Results are too long: show the verdict and score first, then findings grouped by file, collapsed by default, with the top 5 most severe findings expanded. Show a clear, friendly message if GitHub rate limit is hit.
+4. Cache each scan result in memory for 10 minutes so repeated demo scans do not refetch.
+Do not start the dev server; I will run it myself. Run npm.cmd test in /scanner and npm.cmd run build in /web to confirm everything compiles.
+
+---
+
+**Status:** active  **Date:** 2026-09-26
+
+---
+
+### 👤 User
+
+Fix the GitHub repo scan on the Demo page:
+1. Rate limit: currently we call the GitHub API once per file and hit the 60 requests/hour unauthenticated limit. Instead, use ONE call to the git trees API (GET /repos/{owner}/{repo}/git/trees/{branch}?recursive=1) to list files, then download file contents from raw.githubusercontent.com (not counted against the API limit). Optionally use a server-side GITHUB_TOKEN env var if set (never exposed to the browser, never committed).
+2. Support subfolder URLs: https://github.com/owner/repo/tree/<branch>/<path> scans only that path. Add a "Try our poisoned demo" button that fills in https://github.com/yasinfitrah24-tech/subtext/tree/main/demo/node-api-starter.
+3. Results are too long: show the verdict and score first, then findings grouped by file, collapsed by default, with the top 5 most severe findings expanded. Show a clear, friendly message if GitHub rate limit is hit.
+4. Cache each scan result in memory for 10 minutes so repeated demo scans do not refetch.
+Do not start the dev server; I will run it myself. Run npm.cmd test in /scanner and npm.cmd run build in /web to confirm everything compiles.
+
+---
+
+### 🤖 Assistant
+
+> 🔧 called: update_todo_list
+
+
+
+> 🔧 **update_todo_list** — 
+[-] Explore the codebase structure to understand the current implementation
+[ ] Fix GitHub API rate limiting: use git trees API + raw.githubusercontent.com
+[ ] Add server-side GITHUB_TOKEN support
+[ ] Support subfolder URLs (tree/<branch>/<path>)
+[ ] Add "Try our poisoned demo" button
+[ ] Improve results display: verdict/score first, findings grouped by file, collapsed, top 5 expanded
+[ ] Show friendly message on rate limit hit
+[ ] Add 10-minute in-memory cache for scan results
+[ ] Run npm test in /scanner
+[ ] Run npm run build in /web
+
+
+### 🤖 Assistant
+
+> 🔧 called: list_files
+
+
+
+> 🔧 **list_files** — .
+
+### 🤖 Assistant
+
+> 🔧 called: list_files, list_files
+
+
+
+> 🔧 **list_files** — web
+
+> 🔧 **list_files** — scanner
+
+### 🤖 Assistant
+
+> 🔧 called: list_files, list_files
+
+
+
+> 🔧 **list_files** — web/lib
+
+> 🔧 **list_files** — web/pages
+
+### 🤖 Assistant
+
+> 🔧 called: read_file, read_file
+
+
+
+> 🔧 **read_file** — web/pages/demo.tsx
+
+> 🔧 **read_file** — web/pages/api/scan-repo.ts
+
+### 🤖 Assistant
+
+> 🔧 called: read_file, read_file
+
+
+
+> 🔧 **read_file** — web/lib/scanner.ts
+
+> 🔧 **read_file** — web/lib/types.ts
+
+### 🤖 Assistant
+
+> 🔧 called: read_file
+
+Now let me look at the Demo.module.css for styling context:
+
+> 🔧 **read_file** — web/styles/Demo.module.css
+
+### 🤖 Assistant
+
+> 🔧 called: list_files, read_file
+
+Now let me check if the demo fixture mentioned exists:
+
+> 🔧 **list_files** — demo
+
+> 🔧 **read_file** — web/package.json
+
+### 🤖 Assistant
+
+> 🔧 called: update_todo_list
+
+Now I have a complete picture of the codebase. Let me analyze what needs to be done:
+
+1. **Rate limit fix** - The current `scan-repo.ts` already uses the git trees API (`fetchGitHubTree`) for listing files. But `fetchFileContent` still uses the GitHub contents API (counts against limit). Need to switch to `raw.githubusercontent.com`.
+2. **Subfolder URLs** - Already parsed in `parseGitHubUrl`, but need to verify the filter works properly.
+3. **"Try our poisoned demo" button** - The `DEMO_REPO_URL` currently points to `ibm-build-lab/subtext`. Need to change it to `yasinfitrah24-tech/subtext`. Also need to make it a proper button (currently it is a button, but need to verify UX).
+4. **Results display** - Need grouped by file, collapsed by default, top 5 most severe expanded.
+5. **Rate limit friendly message** - Need to detect 403/429 responses and show a clear message.
+6. **10-minute cache** - Add in-memory cache to `scan-repo.ts`.
+
+> 🔧 **update_todo_list** — 
+[x] Explore the codebase structure to understand the current implementation
+[-] Fix GitHub API rate limiting: switch fetchFileContent to raw.githubusercontent.com
+[ ] Add server-side GITHUB_TOKEN support (already exists, verify)
+[ ] Support subfolder URLs (already parsed, verify filter logic)
+[ ] Add "Try our poisoned demo" button with correct URL
+[ ] Improve results display: grouped by file, collapsed, top 5 expanded
+[ ] Show friendly message on rate limit hit
+[ ] Add 10-minute in-memory cache for scan results
+[ ] Run npm test in /scanner
+[ ] Run npm run build in /web
+
+
+### 🤖 Assistant
+
+> 🔧 called: write_file
+
+Now let me implement all changes. I'll start with the API route:
+
+> 🔧 **write_file** — web/pages/api/scan-repo.ts
+
+### 🤖 Assistant
+
+> 🔧 called: write_file
+
+Now let me update the demo.tsx with all the UI changes:
+
+> 🔧 **write_file** — 'use client';
 import { useState, useRef } from 'react';
 import Layout from '../components/Layout';
 import styles from '../styles/Demo.module.css';
@@ -399,3 +548,102 @@ export default function DemoPage() {
     </Layout>
   );
 }
+
+
+### 🤖 Assistant
+
+> 🔧 called: apply_diff
+
+Now update the CSS to add the new styles needed:
+
+> 🔧 **apply_diff** — web/styles/Demo.module.css
+
+### 🤖 Assistant
+
+> 🔧 called: update_todo_list
+
+Now let me run the scanner tests and web build:
+
+> 🔧 **update_todo_list** — 
+[x] Explore the codebase structure to understand the current implementation
+[x] Fix GitHub API rate limiting: switch fetchFileContent to raw.githubusercontent.com
+[x] Add server-side GITHUB_TOKEN support (already exists, verified)
+[x] Support subfolder URLs (already parsed, filter logic fixed)
+[x] Add "Try our poisoned demo" button with correct URL
+[x] Improve results display: grouped by file, collapsed, top 5 expanded
+[x] Show friendly message on rate limit hit
+[x] Add 10-minute in-memory cache for scan results
+[-] Run npm test in /scanner
+[ ] Run npm run build in /web
+
+
+### 🤖 Assistant
+
+> 🔧 called: execute_command
+
+
+
+> 🔧 **execute_command** — npm.cmd test --passWithNoTests 2>&1
+
+### 🤖 Assistant
+
+> 🔧 called: execute_command
+
+All 137 tests pass. Now build the web app:
+
+> 🔧 **execute_command** — npm.cmd run build 2>&1
+
+### 🤖 Assistant
+
+> 🔧 called: update_todo_list
+
+Build succeeds with no errors or warnings.
+
+> 🔧 **update_todo_list** — 
+[x] Explore the codebase structure to understand the current implementation
+[x] Fix GitHub API rate limiting: switch fetchFileContent to raw.githubusercontent.com
+[x] Add server-side GITHUB_TOKEN support (already exists, verified)
+[x] Support subfolder URLs (already parsed, filter logic fixed)
+[x] Add "Try our poisoned demo" button with correct URL
+[x] Improve results display: grouped by file, collapsed, top 5 expanded
+[x] Show friendly message on rate limit hit
+[x] Add 10-minute in-memory cache for scan results
+[x] Run npm test in /scanner
+[x] Run npm run build in /web
+
+
+### 🤖 Assistant
+
+All 4 requirements are implemented and validated. Here's a summary of every change made:
+
+---
+
+### [`web/pages/api/scan-repo.ts`](web/pages/api/scan-repo.ts)
+
+**Rate limiting fix** — `fetchFileContent` now fetches from `https://raw.githubusercontent.com/{owner}/{repo}/{ref}/{path}` instead of the GitHub contents API. Raw downloads don't count against the 60 req/hr unauthenticated quota. The one `fetchGitHubTree` call is the only API hit per scan.
+
+**GITHUB_TOKEN** — Unchanged from before; the `githubApiHeaders()` helper applies it only to the tree listing call, server-side only, never sent to the browser.
+
+**Subfolder filter fix** — The old filter `item.path.startsWith(basePath)` would match `demo/node-api-starterX`. Fixed to `item.path.startsWith(basePath + '/')` so only proper path-prefix matches work.
+
+**Rate limit error sentinel** — HTTP 403/429 from the tree API throws `{ isRateLimit: true }`, which returns `{ error: 'RATE_LIMIT' }` with status 429 to the client.
+
+**10-minute in-memory cache** — `scanCache: Map<string, CacheEntry>` keyed by `owner/repo@ref/basePath`. Cached responses include `cached: true` so the UI can show a badge.
+
+---
+
+### [`web/pages/demo.tsx`](web/pages/demo.tsx)
+
+**"Try our poisoned demo" button** — `DEMO_REPO_URL` updated to `https://github.com/yasinfitrah24-tech/subtext/tree/main/demo/node-api-starter`. Button label changed to `🧪 Try our poisoned demo`.
+
+**Grouped findings** — `FindingsList` now groups findings by file, sorts groups by highest-weight rule descending, pre-expands the top 5 most severe files, and renders each as a `FileGroup` collapsible. A summary line (`N findings across M files`) appears first.
+
+**Rate limit UI** — New `repoRateLimit` state + `RateLimitNotice` component with a clear, friendly explanation and a link to GitHub token settings.
+
+**Cached badge** — When `result.cached === true`, a small teal "cached" pill appears next to the file count.
+
+---
+
+### [`web/styles/Demo.module.css`](web/styles/Demo.module.css)
+
+Added styles for: `.fileGroup`, `.fileGroupHeader`, `.fileGroupChevron`, `.fileGroupCount`, `.fileGroupBody`, `.findingsSummary`, `.rateLimitMsg`/`.rateLimitTitle`/`.rateLimitBody`, `.repoMetaRight`, `.cachedBadge`.
