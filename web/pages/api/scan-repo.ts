@@ -86,7 +86,13 @@ function githubApiHeaders(): Record<string, string> {
 
 async function fetchGitHubTree(owner: string, repo: string, ref: string): Promise<GithubTreeItem[]> {
   const url = `${GITHUB_API_BASE}/repos/${owner}/${repo}/git/trees/${ref}?recursive=1`;
-  const resp = await fetch(url, { headers: githubApiHeaders() });
+  let resp: Response;
+  try {
+    resp = await fetch(url, { headers: githubApiHeaders() });
+  } catch (err) {
+    // Network-level failures (ECONNRESET, ETIMEDOUT, DNS failure, etc.)
+    throw Object.assign(new Error('NETWORK_ERROR'), { isNetworkError: true });
+  }
   if (!resp.ok) {
     const body = await resp.text().catch(() => '');
     const status = resp.status;
@@ -124,6 +130,22 @@ async function fetchFileContent(owner: string, repo: string, path: string, ref: 
 // Handler
 // ---------------------------------------------------------------------------
 export default async function handler(req: NextApiRequest, res: NextApiResponse<RepoScanResponse>) {
+  // Wrap the entire handler so that any unexpected throw still returns JSON.
+  try {
+    return await _handler(req, res);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (!res.headersSent) {
+      res.status(500).json({
+        score: 0, verdict: 'SAFE', findings: [], filesScanned: 0, filesSkipped: 0,
+        repo: '',
+        error: msg || 'Internal server error',
+      });
+    }
+  }
+}
+
+async function _handler(req: NextApiRequest, res: NextApiResponse<RepoScanResponse>) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     res.status(405).json({ score: 0, verdict: 'SAFE', findings: [], filesScanned: 0, filesSkipped: 0, repo: '', error: 'Method not allowed' });
@@ -159,7 +181,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   try {
     tree = await fetchGitHubTree(owner, repo, ref);
   } catch (err) {
-    const e = err as Error & { isRateLimit?: boolean };
+    const e = err as Error & { isRateLimit?: boolean; isNetworkError?: boolean };
     if (e.isRateLimit) {
       res.status(429).json({
         score: 0, verdict: 'SAFE', findings: [], filesScanned: 0, filesSkipped: 0,
@@ -168,7 +190,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       });
       return;
     }
-    res.status(502).json({ score: 0, verdict: 'SAFE', findings: [], filesScanned: 0, filesSkipped: 0, repo: repoLabel, error: (e).message });
+    if (e.isNetworkError) {
+      res.status(502).json({
+        score: 0, verdict: 'SAFE', findings: [], filesScanned: 0, filesSkipped: 0,
+        repo: repoLabel,
+        error: 'Could not reach GitHub from this server. Try again in a moment.',
+      });
+      return;
+    }
+    res.status(502).json({ score: 0, verdict: 'SAFE', findings: [], filesScanned: 0, filesSkipped: 0, repo: repoLabel, error: e.message });
     return;
   }
 

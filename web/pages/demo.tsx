@@ -63,13 +63,52 @@ function VerdictBadge({ verdict, score }: { verdict: Verdict; score: number }) {
   );
 }
 
-/** Single finding row (used inside a file group). */
-function FindingRow({ f }: { f: Finding & { fileRelative?: string } }) {
+/** A de-duplicated finding: one per (file, line) with all matching rule badges. */
+interface MergedFinding {
+  file: string;
+  fileRelative?: string;
+  line: number;
+  snippet: string;
+  rules: string[]; // all rules that fired on this line
+}
+
+/**
+ * Merge findings so that multiple rules hitting the same file+line produce one
+ * card with multiple rule badges instead of duplicate cards.
+ */
+function mergeFindings(
+  findings: (Finding & { fileRelative?: string })[]
+): MergedFinding[] {
+  const map = new Map<string, MergedFinding>();
+  for (const f of findings) {
+    const key = `${f.fileRelative ?? f.file}:${f.line}`;
+    const existing = map.get(key);
+    if (existing) {
+      if (!existing.rules.includes(f.rule)) existing.rules.push(f.rule);
+    } else {
+      map.set(key, {
+        file: f.file,
+        fileRelative: f.fileRelative,
+        line: f.line,
+        snippet: f.snippet,
+        rules: [f.rule],
+      });
+    }
+  }
+  return Array.from(map.values());
+}
+
+/** Single finding row (one per de-duplicated file+line, with ≥1 rule badges). */
+function FindingRow({ f }: { f: MergedFinding }) {
   return (
     <div className={styles.findingRow}>
       <div className={styles.findingMeta}>
         <span className={styles.findingLine}>line {f.line}</span>
-        <span className={styles.findingRule}>{RULE_LABELS[f.rule] ?? f.rule}</span>
+        {f.rules.map((rule) => (
+          <span key={rule} className={styles.findingRule}>
+            {RULE_LABELS[rule] ?? rule}
+          </span>
+        ))}
       </div>
       <code className={styles.findingSnippet}>{f.snippet}</code>
     </div>
@@ -78,17 +117,22 @@ function FindingRow({ f }: { f: Finding & { fileRelative?: string } }) {
 
 /** Findings grouped by file, collapsed by default, top-5-most-severe expanded. */
 function FindingsList({ findings }: { findings: (Finding & { fileRelative?: string })[] }) {
+  // De-duplicate: collapse multiple rules on the same file+line into one card
+  const merged = mergeFindings(findings);
+
   // Determine which files get pre-expanded (top 5 by max finding weight)
-  const byFile = new Map<string, (Finding & { fileRelative?: string })[]>();
-  for (const f of findings) {
+  const byFile = new Map<string, MergedFinding[]>();
+  for (const f of merged) {
     const key = f.fileRelative ?? f.file;
     if (!byFile.has(key)) byFile.set(key, []);
     byFile.get(key)!.push(f);
   }
 
-  // Score each file group by its highest-weight finding
+  // Score each file group by its highest-weight finding (across all rules per card)
   const fileGroups = Array.from(byFile.entries()).map(([file, items]) => {
-    const maxWeight = Math.max(...items.map((f) => RULE_WEIGHT[f.rule] ?? 10));
+    const maxWeight = Math.max(
+      ...items.flatMap((f) => f.rules.map((r) => RULE_WEIGHT[r] ?? 10))
+    );
     return { file, items, maxWeight };
   });
   // Sort by severity desc so expanded files appear first
@@ -96,14 +140,14 @@ function FindingsList({ findings }: { findings: (Finding & { fileRelative?: stri
 
   const expandedByDefault = new Set(fileGroups.slice(0, 5).map((g) => g.file));
 
-  if (findings.length === 0) {
+  if (merged.length === 0) {
     return <div className={styles.noFindings}>No findings — content looks clean.</div>;
   }
 
   return (
     <div className={styles.findingsTable}>
       <div className={styles.findingsSummary}>
-        {findings.length} finding{findings.length !== 1 ? 's' : ''} across {byFile.size} file{byFile.size !== 1 ? 's' : ''}
+        {merged.length} finding{merged.length !== 1 ? 's' : ''} across {byFile.size} file{byFile.size !== 1 ? 's' : ''}
       </div>
       {fileGroups.map(({ file, items }) => (
         <FileGroup
@@ -123,7 +167,7 @@ function FileGroup({
   defaultOpen,
 }: {
   file: string;
-  findings: (Finding & { fileRelative?: string })[];
+  findings: MergedFinding[];
   defaultOpen: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -231,11 +275,18 @@ export default function DemoPage() {
     setRepoResult(null);
     setRepoRateLimit(false);
     try {
-      const resp = await fetch('/api/scan-repo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ repoUrl: target }),
-      });
+      let resp: Response;
+      try {
+        resp = await fetch('/api/scan-repo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ repoUrl: target }),
+        });
+      } catch {
+        // Browser-side network failure (server unreachable, etc.)
+        setRepoError('Could not reach GitHub from this server. Try again in a moment.');
+        return;
+      }
       const data: ScanResult = await resp.json();
       if (resp.status === 429 || data.error === 'RATE_LIMIT') {
         setRepoRateLimit(true);

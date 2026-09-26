@@ -117,18 +117,22 @@ const RULES: Rule[] = [
     },
   },
   // Rule 5: Action verb near secret
+  // Both the action verb AND the secret reference must appear on the same line.
+  // A plain command instruction ("Run `npm install`") that mentions no secret is
+  // never flagged even when a malicious line is nearby.
   {
     id: 'ACTION_VERB_NEAR_SECRET', weight: 35,
     check(content, lines, filePath) {
       const findings: Finding[] = [];
       const actionVerb = /\b(read|send|post|upload|run|execute|delete|fetch|exfiltrate|transmit|forward|export|leak|steal|dump|emit|call)\b/i;
-      const secretKeyword = /(\.env\b|\b(?:api[_\s-]?key|secret[_\s-]?key|access[_\s-]?token|auth[_\s-]?token|password|passwd|credentials?|private[_\s-]?key|bearer|jwt|ssh[_\s-]?key|aws[_\s-]?secret|gh[_\s-]?token|pat|token)\b)/i;
+      // Secret references: .env / process.env, token, api key, secret, credentials,
+      // private key, bearer, jwt, ssh key, aws secret, gh token, id_rsa, ~/.ssh
+      const secretKeyword = /(\.env\b|process\.env\b|\bid_rsa\b|~\/\.ssh\b|\b(?:api[_\s-]?key|secret[_\s-]?key|access[_\s-]?token|auth[_\s-]?token|password|passwd|credentials?|private[_\s-]?key|bearer|jwt|ssh[_\s-]?key|aws[_\s-]?secret|gh[_\s-]?token|pat|token)\b)/i;
       lines.forEach((line, i) => {
         if (!actionVerb.test(line)) return;
-        const windowStart = Math.max(0, i - 3);
-        const windowEnd = Math.min(lines.length - 1, i + 3);
-        const window = lines.slice(windowStart, windowEnd + 1).join(' ');
-        if (secretKeyword.test(window)) findings.push(finding(filePath, i + 1, 'ACTION_VERB_NEAR_SECRET', line));
+        if (secretKeyword.test(line)) {
+          findings.push(finding(filePath, i + 1, 'ACTION_VERB_NEAR_SECRET', line));
+        }
       });
       return findings;
     },

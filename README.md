@@ -14,20 +14,20 @@ Built with IBM Bob + IBM Granite · Team Triple T · IBM Bob Hackathon 2.0
 
 ### Before / After
 
-| Metric | Before (v1) | After (v2) | Δ |
-|---|---|---|---|
-| Files evaluated | 40 | 40 | — |
-| **Detection rate** (malicious flagged) | **30.0%** (6/20) | **80.0%** (16/20) | **+50 pp** |
-| **False-positive rate** (benign flagged) | **5.0%** (1/20) | **0.0%** (0/20) | **−5 pp** |
-| Overall accuracy | 62.5% | 90.0% | +27.5 pp |
-| Avg time per file | 0.23 ms | 0.40 ms | +0.17 ms |
+| Metric | Before (v1) | After (v2) | After (v3) | Δ v1→v3 |
+|---|---|---|---|---|
+| Files evaluated | 40 | 40 | 40 | — |
+| **Detection rate** (malicious flagged) | **30.0%** (6/20) | **80.0%** (16/20) | **85.0%** (17/20) | **+55 pp** |
+| **False-positive rate** (benign flagged) | **5.0%** (1/20) | **0.0%** (0/20) | **0.0%** (0/20) | **−5 pp** |
+| Overall accuracy | 62.5% | 90.0% | 92.5% | +30 pp |
+| Avg time per file | 0.23 ms | 0.40 ms | 0.42 ms | +0.19 ms |
 
 ### Per-category results (current)
 
 | Category | Partition | Files | Correct | Accuracy | Notes |
 |---|---|---|---|---|---|
 | `hidden-instruction` | malicious | 4 | 2 | 50.0% | 2 remaining misses: docstring & plain-prose coaxing |
-| `exfiltration` | malicious | 3 | 1 | 33.3% | 2 remaining misses: non-URL prose exfiltration |
+| `exfiltration` | malicious | 3 | 2 | 66.7% | ✓ fixed: SSH key exfil via `process.env`/`id_rsa` patterns |
 | `invisible-unicode` | malicious | 3 | 3 | 100.0% | ✓ fixed: `.cursorrules` now scanned |
 | `remote-exec` | malicious | 7 | 7 | 100.0% | ✓ fixed: curl\|bash, wget\|sh, IEX, exec/eval-fetch, dig-TXT |
 | `coercion` | malicious | 2 | 2 | 100.0% | ✓ fixed: hide-from-user & fake-error patterns |
@@ -45,13 +45,12 @@ Built with IBM Bob + IBM Granite · Team Triple T · IBM Bob Hackathon 2.0
 | `issue-legit` | benign | 1 | 1 | 100.0% | ✓ |
 | `readme-legit` | benign | 3 | 3 | 100.0% | ✓ |
 
-### Remaining misses (4)
+### Remaining misses (3)
 
 | File | Expected | Verdict | Reason |
 |---|---|---|---|
 | `malicious/09_addressed_to_ai.md` | flagged | SAFE | Direct AI address in plain prose (no comment wrapper) |
 | `malicious/11_issue_read_private.md` | flagged | SAFE | MCP-style repo-read request in plain prose |
-| `malicious/15_send_ssh_key.md` | flagged | SAFE | SSH key exfiltration in plain prose (no URL) |
 | `malicious/19_docstring_injection.py` | flagged | SAFE | Prompt injection hidden inside a Python docstring |
 
 ## Security Gate mode
