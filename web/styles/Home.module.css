@@ -250,7 +250,8 @@
   font-size: clamp(40px, 5vw, 60px);
   font-weight: 700;
   line-height: 1;
-  color: #F2A93B;
+  /* Same BLOCK red as the Demo page (SAFE teal, REVIEW amber, BLOCK red) */
+  color: #F05A5A;
 }
 
 .verdictScore {
@@ -628,3 +629,41 @@
   font-size: clamp(14px, 1.4vw, 18px);
   color: #F3F1EC;
 }
+
+.cardLink {
+  color: #F2A93B;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.cardLink:hover { text-decoration: underline; }
+
+/* Clean copy row: appears after the findings */
+.cleanRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #3CC2AE;
+  border-radius: 8px;
+  background: rgba(60, 194, 174, 0.08);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+
+.cleanIn {
+  opacity: 0;
+  animation: rise 0.45s ease-out 2.6s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cleanIn { opacity: 1; animation: none; }
+}
+
+.cleanTag {
+  color: #3CC2AE;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.cleanText { color: #DCE3EC; }

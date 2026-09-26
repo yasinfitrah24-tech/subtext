@@ -105,32 +105,36 @@ export default function Home() {
         <div className={`${styles.card} ${styles.cardscan} rise d3`}>
           <div className={styles.cardbar} />
           <div className={styles.cardHeader}>
-            <code className={styles.cardCmd}>$ subtext scan ./repo<span className={styles.caret} /></code>
-            <span className={styles.chip}>example</span>
+            <code className={styles.cardCmd}>$ subtext scan demo/node-api-starter<span className={styles.caret} /></code>
+            <span className={styles.chip}>real scan</span>
           </div>
           <div className={styles.cardVerdict}>
             <span className={`${styles.verdictLabel} ${styles.popin}`}>BLOCK</span>
-            <span className={styles.verdictScore}>risk 87/100</span>
+            <span className={styles.verdictScore}>score 90/100</span>
           </div>
           <div className={styles.divider} />
           <div className={`${styles.findings} ${styles.findin}`}>
             <div className={styles.finding}>
-              <span className={styles.findingLoc}>README.md:12</span>
+              <span className={styles.findingLoc}>README.md:9</span>
               <span className={styles.findingText}>hidden comment → .env</span>
             </div>
             <div className={styles.finding}>
-              <span className={styles.findingLoc}>setup.sh:4</span>
-              <span className={styles.findingText}>curl | bash</span>
+              <span className={styles.findingLoc}>src/index.js:7</span>
+              <span className={styles.findingText}>[INST] send process.env</span>
             </div>
             <div className={styles.finding}>
-              <span className={styles.findingLoc}>docs/intro.md:1</span>
-              <span className={styles.findingText}>U+200B ×42</span>
+              <span className={styles.findingLoc}>CONTRIBUTING.md:14</span>
+              <span className={styles.findingText}>&ldquo;you are now&rdquo; override</span>
             </div>
+          </div>
+          <div className={`${styles.cleanRow} ${styles.cleanIn}`}>
+            <span className={styles.cleanTag}>Clean copy</span>
+            <span className={styles.cleanText}>3 injections removed · rescanned SAFE</span>
           </div>
           <div className={styles.divider} />
           <div className={styles.cardFooter}>
             <span>Context check: IBM Granite</span>
-            <span>Example report</span>
+            <Link href="/demo" className={styles.cardLink}>Run it yourself →</Link>
           </div>
         </div>
       </section>
