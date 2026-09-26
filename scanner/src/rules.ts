@@ -83,7 +83,7 @@ export const ruleActionVerbNearSecret: Rule = {
     const actionVerb =
       /\b(read|send|post|upload|run|execute|delete|fetch|exfiltrate|transmit|forward|export|leak|steal|dump|emit|call)\b/i;
     const secretKeyword =
-      /\b(\.env|api[_\s-]?key|secret[_\s-]?key|access[_\s-]?token|auth[_\s-]?token|password|passwd|credentials?|private[_\s-]?key|bearer|jwt|ssh[_\s-]?key|aws[_\s-]?secret|gh[_\s-]?token|pat\b|token)\b/i;
+      /(\.env\b|\b(?:api[_\s-]?key|secret[_\s-]?key|access[_\s-]?token|auth[_\s-]?token|password|passwd|credentials?|private[_\s-]?key|bearer|jwt|ssh[_\s-]?key|aws[_\s-]?secret|gh[_\s-]?token|pat|token)\b)/i;
 
     // Check a window of ±3 lines around each action-verb line
     lines.forEach((line, i) => {
@@ -163,7 +163,7 @@ export const ruleBase64Instruction: Rule = {
   check(content, lines, filePath) {
     const findings: Finding[] = [];
     // Match standalone base64 strings (≥40 chars, no surrounding word chars)
-    const b64Pattern = /(?<![A-Za-z0-9+/=])([A-Za-z0-9+/]{40,}={0,2})(?![A-Za-z0-9+/=])/g;
+    const b64Pattern = /(?<![A-Za-z0-9+/])([A-Za-z0-9+/]{40,}={0,2})(?![A-Za-z0-9+/])/g;
     // Keywords that hint at instruction content once decoded
     const instructionHints =
       /ignore|system\s*:|you\s+are|act\s+as|instruction|prompt|override|disregard|forget|jailbreak|exec|eval|fetch|token|api[_\s]key|password/i;
