@@ -85,7 +85,7 @@ export default function Home() {
           <p className={`${styles.lede} rise d4`}>
             Every README has subtext.{' '}
             <strong style={{ color: '#F3F1EC', fontWeight: 700 }}>Subtext</strong>{' '}
-            finds the hidden prompt injection before your coding agent obeys it.
+            finds the hidden prompt injection before your coding agent obeys it, then gives you a clean copy.
           </p>
 
           <div className={`${styles.ctaRow} rise d5`}>

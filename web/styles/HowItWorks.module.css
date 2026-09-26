@@ -494,3 +494,66 @@
     animation: none;
   }
 }
+
+/* ── After the scan ── */
+.after {
+  padding: 60px clamp(24px, 8vw, 120px) 70px;
+  border-top: 1px solid #1E2940;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.eyebrowTeal {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: #3CC2AE;
+  margin-bottom: 6px;
+}
+
+.italicTeal {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1.1;
+  padding-bottom: 4px;
+  color: #3CC2AE;
+}
+
+.afterGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+.afterCard {
+  background: #161F31;
+  border: 1px solid #2A3650;
+  border-top: 2px solid #3CC2AE;
+  border-radius: 12px;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.afterCard:hover { transform: translateY(-3px); border-color: #3A4660; border-top-color: #3CC2AE; }
+
+.afterTitle { font-size: 18px; font-weight: 600; color: #F3F1EC; }
+.afterDesc { margin: 0; font-size: 15px; line-height: 1.55; color: #AEBBD0; }
+
+.afterCode {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9em;
+  background: #0A0F1A;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: #3CC2AE;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .afterCard { transition: none; }
+}

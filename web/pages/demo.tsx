@@ -430,7 +430,7 @@ export default function DemoPage() {
         <h1 className={styles.h1}>Try the scanner.</h1>
         <div className={styles.italic}>No account required.</div>
         <p className={styles.body}>
-          Paste a file or paste a GitHub URL. Content is scanned in memory and never stored.
+          Paste a file or a GitHub URL. Content is scanned in memory and never stored. Every flagged file comes with a clean copy you can hand to your agent.
         </p>
         <JudgeNote mode={judgeMode} />
       </section>

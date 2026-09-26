@@ -132,6 +132,29 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
+      {/* ── After the scan: clean copy ── */}
+      <section className={styles.after}>
+        <div>
+          <div className={styles.eyebrowTeal}>AFTER THE SCAN</div>
+          <h2 className={styles.h2}>BLOCK is not the end.</h2>
+          <div className={styles.italicTeal}>Get a clean copy.</div>
+        </div>
+        <div className={styles.afterGrid}>
+          <div className={styles.afterCard}>
+            <div className={styles.afterTitle}>Hidden text removed</div>
+            <p className={styles.afterDesc}>Invisible characters are stripped. Comments addressed to an AI and lines that give the agent orders are replaced by a <code className={styles.afterCode}>[Subtext]</code> marker.</p>
+          </div>
+          <div className={styles.afterCard}>
+            <div className={styles.afterTitle}>Rescanned and listed</div>
+            <p className={styles.afterDesc}>The copy is scanned again to confirm it is clean, and every change is listed by line. The original repo is never modified.</p>
+          </div>
+          <div className={styles.afterCard}>
+            <div className={styles.afterTitle}>One button or one flag</div>
+            <p className={styles.afterDesc}>On the demo, press <b>Get clean copy</b> on any flagged file. In the CLI, add <code className={styles.afterCode}>--sanitize ./clean</code>.</p>
+          </div>
+        </div>
+      </section>
+
       {/* ── What you see vs what the agent reads ── */}
       <section className={styles.hidden}>
         <div className={styles.hiddenHeader}>
@@ -211,7 +234,7 @@ export default function HowItWorksPage() {
       <section className={styles.rules}>
         <h2 className={styles.h2}>11 detection rules</h2>
         <p className={styles.body} style={{ marginBottom: '32px' }}>
-          Each rule returns a weighted score (0–100). A file hits REVIEW at 20+ and BLOCK at 60+.
+          Each rule adds its weight to the file's score (0–100). A file hits REVIEW at 20+ and BLOCK at 60+, and the repo takes the score of its worst file.
         </p>
         <div className={styles.rulesTable}>
           {ATTACK_TYPES.map((r) => (
@@ -230,7 +253,7 @@ export default function HowItWorksPage() {
       {/* ── CTA ── moved here from Home page */}
       <section className={styles.footerCta}>
         <div>
-          <div className={styles.footerH}>Scan first.</div>
+          <div className={styles.footerH}>Scan first. Clean what&rsquo;s hidden.</div>
           <div className={styles.footerItalic}>Then let the agent read.</div>
         </div>
         <Link href="/demo" className={styles.ctaPrimary}>
