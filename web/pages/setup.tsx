@@ -11,8 +11,22 @@ function CopyButton({ text }: { text: string }) {
     });
   }, [text]);
   return (
-    <button className={styles.copyBtn} onClick={copy} aria-label="Copy to clipboard">
-      {copied ? 'Copied' : 'Copy'}
+    <button
+      className={`${styles.copyBtn} ${copied ? styles.copyDone : ''}`}
+      onClick={copy}
+      aria-label={copied ? 'Copied' : 'Copy to clipboard'}
+      title={copied ? 'Copied' : 'Copy'}
+    >
+      {copied ? (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5 12.5l4.5 4.5L19 7.5" />
+        </svg>
+      ) : (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="9" y="9" width="12" height="12" rx="3" />
+          <path d="M15 5.5V5a2 2 0 0 0-2-2H6a3 3 0 0 0-3 3v7a2 2 0 0 0 2 2h.5" />
+        </svg>
+      )}
     </button>
   );
 }

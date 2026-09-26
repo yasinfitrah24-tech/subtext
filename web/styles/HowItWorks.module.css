@@ -93,13 +93,23 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-  animation: ring 5s ease-in-out infinite;
+  animation: ring 6s ease-in-out infinite both;
   flex-shrink: 0;
 }
 
+/* Each circle lights up in turn: 1.2s apart (delay set inline), 6s cycle */
 @keyframes ring {
-  0%, 12%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,.35); }
-  4% { box-shadow: 0 0 0 8px rgba(242,169,59,.22), 0 10px 30px rgba(0,0,0,.35); }
+  0%, 18%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  8% { box-shadow: 0 0 0 8px rgba(242,169,59,.25), 0 0 24px rgba(242,169,59,.35), 0 10px 30px rgba(0,0,0,.35); }
+}
+
+/* Same box for every icon so SVGs and logos read at one size */
+.stepIcon {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .stepNum {
