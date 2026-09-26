@@ -1,0 +1,6 @@
+services:
+  web:
+    image: myapp
+    environment:
+      - API_KEY=${API_KEY}
+      - PORT=8080
