@@ -11,7 +11,7 @@ Built with IBM Bob + IBM Granite · Team Triple T (Yasin Fitrah & Vincent) · IB
 
 | Detection rate | False positives | Accuracy | Speed | Tests |
 |---|---|---|---|---|
-| **85%** (17/20 malicious) | **0%** (0/20 benign) | **92.5%** | ~0.4 ms / file | **146/146** passing |
+| **85%** (17/20 malicious) | **0%** (0/20 benign) | **92.5%** | ~0.5 ms / file | **157/157** passing |
 
 ## The problem
 
@@ -37,7 +37,8 @@ Repo opened ──▶ Bob Security Gate ──▶ Rules scan ──▶ Granite G
    ("don't tell the user") and supply-chain injection. AI config files such as
    `.cursorrules` and `.windsurfrules` are scanned too.
 4. **Granite judges.** Only flagged snippets go to IBM Granite Guardian, so scans stay cheap.
-5. **Verdict.** Score 0–19 SAFE, 20–59 REVIEW, 60–100 BLOCK. The CLI exits with code `2` on BLOCK,
+5. **Verdict.** Each file gets a score from the rules it trips; the repo takes its worst file.
+   0–19 SAFE, 20–59 REVIEW, 60–100 BLOCK. The CLI exits with code `2` on BLOCK,
    so it can fail a CI job.
 
 Only when the verdict is SAFE does Bob hand off to Agent mode.
@@ -132,6 +133,36 @@ API rate limits, put a read-only `GITHUB_TOKEN` in `web/.env.local` (gitignored)
 
 The three misses are plain-prose instructions with no hidden wrapper. That is the gap the
 Granite Guardian judge step is meant to cover.
+
+### Real-world check: popular open-source repos
+
+The labelled set is synthetic, so we also ran the CLI on six popular public repos
+(shallow clones of the default branch, Sep 2026). None of them is malicious, so the
+right answer is SAFE, or REVIEW where a README really does tell you to pipe a script
+into bash.
+
+| Repo | Verdict | Why |
+|---|---|---|
+| expressjs/express | SAFE 0/100 | |
+| axios/axios | SAFE 0/100 | |
+| psf/requests | SAFE 0/100 | |
+| sindresorhus/got | SAFE 0/100 | |
+| chalk/chalk | SAFE 0/100 | |
+| nvm-sh/nvm | REVIEW 25/100 | README installs with `curl ... \| bash` |
+
+The first version of the rules got this wrong: four of these six repos scored BLOCK. The causes
+were coverage pragmas like `/* istanbul ignore next */` read as AI-addressed comments,
+test code like `delete process.env.X` read as secret exfiltration, plain CDN `<script src>`
+install snippets, byte-order marks in test strings, and a repo score that added up weak hits
+across hundreds of files. The fixes:
+
+- Natural-language rules read only prose: Markdown outside code fences, and comments in code files.
+- A secret-plus-verb line counts only when it is aimed at an AI or names a place to send the secret.
+- Tool pragmas (istanbul, eslint, prettier, ...) are not AI-addressed comments.
+- A repo's score is its worst file's score, not the sum over all files.
+
+Each of these is covered by a regression test in `scanner/src/__tests__/rules.test.ts`. The
+labelled-set numbers above did not drop.
 
 ## Security Gate mode
 

@@ -120,17 +120,22 @@ export function computeResult(allFindings: Finding[]): ScanResult {
     return { score: 0, verdict: "SAFE", findings: [] };
   }
 
-  // Build a dedup key: rule + file (one hit per rule per file)
-  const seen = new Set<string>();
-  let rawScore = 0;
-
+  // Score each file on its own (each rule counts once per file), then take
+  // the worst file. Summing across files would let a large, healthy repo
+  // reach BLOCK from many unrelated weak hits.
+  const perFile = new Map<string, Set<string>>();
   for (const f of allFindings) {
-    const key = `${f.rule}::${f.file}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      const rule = ALL_RULES.find((r) => r.id === f.rule);
-      rawScore += rule ? rule.weight : 10;
+    if (!perFile.has(f.file)) perFile.set(f.file, new Set());
+    perFile.get(f.file)!.add(f.rule);
+  }
+  let rawScore = 0;
+  for (const rules of perFile.values()) {
+    let fileScore = 0;
+    for (const id of rules) {
+      const rule = ALL_RULES.find((r) => r.id === id);
+      fileScore += rule ? rule.weight : 10;
     }
+    rawScore = Math.max(rawScore, fileScore);
   }
 
   const score = Math.min(100, rawScore);

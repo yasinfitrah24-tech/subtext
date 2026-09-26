@@ -9,5 +9,5 @@
   "falseNegatives": 3,
   "trueNegatives": 20,
   "falsePositives": 0,
-  "avgTimingMs": 0.3
+  "avgTimingMs": 0.53
 }

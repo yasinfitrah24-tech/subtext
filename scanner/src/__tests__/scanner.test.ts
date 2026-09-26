@@ -107,6 +107,18 @@ describe("computeResult", () => {
     expect(result.verdict).toBe("SAFE");
   });
 
+  it("scores the worst file, not the sum of weak hits across many files", () => {
+    const findings: Finding[] = ["a.js", "b.js", "c.js", "d.js"].map((file) => ({
+      file,
+      line: 1,
+      rule: "COMMENT_AI_ADDRESSED",
+      snippet: "x",
+    }));
+    const result = computeResult(findings);
+    expect(result.score).toBe(20);
+    expect(result.verdict).toBe("REVIEW");
+  });
+
   it("returns REVIEW for moderate score (20–59)", () => {
     const findings: Finding[] = [
       { file: "a.md", line: 1, rule: "COMMENT_AI_ADDRESSED", snippet: "test" },
