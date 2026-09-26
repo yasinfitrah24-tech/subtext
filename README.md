@@ -11,7 +11,7 @@ Built with IBM Bob + IBM Granite · Team Triple T (Yasin Fitrah & Vincent) · IB
 
 | Detection rate | False positives | Accuracy | Speed | Tests |
 |---|---|---|---|---|
-| **85%** (17/20 malicious) | **0%** (0/20 benign) | **92.5%** | ~0.5 ms / file | **157/157** passing |
+| **85%** (17/20 malicious) | **0%** (0/20 benign) | **92.5%** | ~0.5 ms / file | **164/164** passing |
 
 ## The problem
 
@@ -43,6 +43,28 @@ Repo opened ──▶ Bob Security Gate ──▶ Rules scan ──▶ Granite G
 
 Only when the verdict is SAFE does Bob hand off to Agent mode.
 
+### After the scan: clean copies
+
+A BLOCK verdict tells you not to hand the repo to an agent as is. **Clean copy** gives you
+something you can hand over instead: a copy of each flagged file with the hidden content
+removed, rescanned to confirm it is clean.
+
+- Invisible characters (zero-width, bidi controls) are stripped. Emoji sequences are kept.
+- Comments addressed to an AI are replaced with a short `[Subtext]` marker.
+- Lines that carry an instruction for the agent (send a secret, ignore previous instructions,
+  `curl | bash`, hide this from the user, ...) are replaced with a marker in the file's own
+  comment syntax, together with the rest of that comment block.
+- JSON has no comments, so instruction lines there are flagged for manual review, not removed.
+- The original files are never modified. Every change is listed so a person can review it.
+
+On the website, open a flagged file in the results and press **Get clean copy**
+(copy or download). In the CLI:
+
+```bash
+node dist/index.js ../demo/node-api-starter --sanitize ./clean
+# ./clean/README.md, ./clean/src/index.js, ... plus ./clean/SUBTEXT_CHANGES.md
+```
+
 ## Quick start
 
 Requires Node.js 18+.
@@ -58,6 +80,9 @@ node dist/index.js ../demo/node-api-starter --verbose
 
 # A normal starter repo → SAFE
 node dist/index.js ../demo/clean-starter --verbose
+
+# Write clean copies of the flagged files to ./clean (originals untouched)
+node dist/index.js ../demo/node-api-starter --sanitize ./clean
 
 # Run the test suite
 npm test
@@ -232,7 +257,7 @@ Small follow-up fixes after Task 07 (CSS animation scoping, one false positive o
 
 | Path | Contents |
 |---|---|
-| `scanner/` | TypeScript CLI, rules, Granite judge, Jest tests |
+| `scanner/` | TypeScript CLI, rules, sanitizer, Granite judge, Jest tests |
 | `web/` | Next.js site and scan API (deployed on Vercel) |
 | `eval/` | Evaluation script and `results.json` |
 | `dataset/` | 20 malicious + 20 benign synthetic samples, `labels.csv` |

@@ -9,7 +9,7 @@ import { Finding, Rule } from "./types";
 // codepoints (i.e. legitimate family/profession emoji sequences).
 // We detect emoji using the broad Unicode range for emoji and emoji modifiers.
 // ---------------------------------------------------------------------------
-function isEmojiZwj(line: string, zwjIndex: number): boolean {
+export function isEmojiZwj(line: string, zwjIndex: number): boolean {
   // `zwjIndex` is the UTF-16 string offset of the U+200D character.
   // We need the codepoint neighbours (left and right of ZWJ).
   // Spread into actual Unicode codepoints and walk to find the ZWJ position.

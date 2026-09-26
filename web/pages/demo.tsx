@@ -13,6 +13,7 @@ interface ScanResult {
   filesScanned?: number;
   filesSkipped?: number;
   repo?: string;
+  ref?: string;
   cached?: boolean;
   error?: string;
   judgeMode?: 'live' | 'cached';
@@ -116,7 +117,13 @@ function FindingRow({ f }: { f: MergedFinding }) {
 }
 
 /** Findings grouped by file, collapsed by default, top-5-most-severe expanded. */
-function FindingsList({ findings }: { findings: (Finding & { fileRelative?: string })[] }) {
+function FindingsList({
+  findings,
+  cleanSourceFor,
+}: {
+  findings: (Finding & { fileRelative?: string })[];
+  cleanSourceFor?: (f: MergedFinding) => CleanSource | undefined;
+}) {
   // De-duplicate: collapse multiple rules on the same file+line into one card
   const merged = mergeFindings(findings);
 
@@ -155,8 +162,113 @@ function FindingsList({ findings }: { findings: (Finding & { fileRelative?: stri
           file={file}
           findings={items}
           defaultOpen={expandedByDefault.has(file)}
+          cleanSource={cleanSourceFor ? cleanSourceFor(items[0]) : undefined}
         />
       ))}
+    </div>
+  );
+}
+
+type CleanSource =
+  | { content: string; filename: string }
+  | { repo: string; ref: string; path: string };
+
+interface CleanChange {
+  line: number;
+  through?: number;
+  rules: string[];
+  action: 'stripped-invisible' | 'removed-comment' | 'removed-line' | 'flagged';
+}
+
+const ACTION_TEXT: Record<CleanChange['action'], string> = {
+  'removed-line': 'removed',
+  'removed-comment': 'AI comment removed',
+  'stripped-invisible': 'invisible characters stripped',
+  flagged: 'flagged, left in place',
+};
+
+/** "Get clean copy": fetches a sanitized version of one flagged file. */
+function CleanCopy({ source, fileLabel }: { source: CleanSource; fileLabel: string }) {
+  const [state, setState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+  const [data, setData] = useState<{ clean: string; changes: CleanChange[]; remaining: number } | null>(null);
+  const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  async function load() {
+    setState('loading');
+    setError('');
+    try {
+      const resp = await fetch('/api/clean-file', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(source),
+      });
+      const json = await resp.json();
+      if (!resp.ok || json.error) throw new Error(json.error ?? `HTTP ${resp.status}`);
+      setData(json);
+      setState('done');
+    } catch (e) {
+      setError((e as Error).message);
+      setState('error');
+    }
+  }
+
+  function copy() {
+    if (!data) return;
+    navigator.clipboard.writeText(data.clean).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  function download() {
+    if (!data) return;
+    const name = (fileLabel.split('/').pop() || 'file.txt');
+    const blob = new Blob([data.clean], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  if (state === 'idle' || state === 'loading' || state === 'error') {
+    return (
+      <div className={styles.cleanBar}>
+        <button className={styles.cleanBtn} onClick={load} disabled={state === 'loading'}>
+          {state === 'loading' ? 'Cleaning…' : 'Get clean copy'}
+        </button>
+        <span className={styles.cleanHint}>
+          A copy with the hidden instructions removed, safe to hand to your agent. The original is not changed.
+        </span>
+        {state === 'error' && <span className={styles.cleanError}>{error}</span>}
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.cleanPanel}>
+      <div className={styles.cleanHead}>
+        <span className={styles.cleanTitle}>Clean copy</span>
+        <span className={styles.cleanMeta}>
+          {data!.changes.length} change{data!.changes.length !== 1 ? 's' : ''}
+          {data!.remaining > 0 ? ` · ${data!.remaining} left for manual review` : ' · rescanned: clean'}
+        </span>
+        <div className={styles.cleanActions}>
+          <button className={styles.cleanBtn} onClick={copy}>{copied ? 'Copied' : 'Copy'}</button>
+          <button className={styles.cleanBtn} onClick={download}>Download</button>
+        </div>
+      </div>
+      <ul className={styles.cleanChanges}>
+        {data!.changes.map((c) => (
+          <li key={c.line}>
+            <span className={styles.cleanLine}>{c.through ? `lines ${c.line}–${c.through}` : `line ${c.line}`}</span>{' '}
+            {ACTION_TEXT[c.action]} ({c.rules.map((r) => RULE_LABELS[r] ?? r).join(', ')})
+          </li>
+        ))}
+      </ul>
+      <pre className={styles.cleanPre}>{data!.clean}</pre>
     </div>
   );
 }
@@ -165,10 +277,12 @@ function FileGroup({
   file,
   findings,
   defaultOpen,
+  cleanSource,
 }: {
   file: string;
   findings: MergedFinding[];
   defaultOpen: boolean;
+  cleanSource?: CleanSource;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -187,6 +301,7 @@ function FileGroup({
           {findings.map((f, i) => (
             <FindingRow key={i} f={f} />
           ))}
+          {cleanSource && <CleanCopy source={cleanSource} fileLabel={file} />}
         </div>
       )}
     </div>
@@ -385,7 +500,10 @@ export default function DemoPage() {
             {pasteResult && (
               <div className={styles.results}>
                 <VerdictBadge verdict={pasteResult.verdict} score={pasteResult.score} />
-                <FindingsList findings={pasteResult.findings} />
+                <FindingsList
+                  findings={pasteResult.findings}
+                  cleanSourceFor={() => ({ content: pasteContent, filename: pasteFilename || 'pasted-file.txt' })}
+                />
               </div>
             )}
           </div>
@@ -441,7 +559,14 @@ export default function DemoPage() {
                   </div>
                 </div>
                 <VerdictBadge verdict={repoResult.verdict} score={repoResult.score} />
-                <FindingsList findings={repoResult.findings} />
+                <FindingsList
+                  findings={repoResult.findings}
+                  cleanSourceFor={(f) => {
+                    const repo = repoResult.repo;
+                    if (!repo || !f.file.startsWith(repo + '/')) return undefined;
+                    return { repo, ref: repoResult.ref ?? 'HEAD', path: f.file.slice(repo.length + 1) };
+                  }}
+                />
               </div>
             )}
           </div>

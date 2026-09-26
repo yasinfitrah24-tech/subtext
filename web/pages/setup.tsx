@@ -70,15 +70,18 @@ npm run build`}</code></pre>
         <div className={styles.codeBlock}>
           <div className={styles.codeHeader}>
             <span>Scan a cloned repo</span>
-            <CopyButton text={`# Scan a cloned repo\nnpx ts-node src/index.ts ../some-repo --verbose\n\n# With the Granite Guardian judge step (requires Ollama or watsonx env vars)\nnpx ts-node src/index.ts ../some-repo --judge --verbose`} />
+            <CopyButton text={`# Scan a cloned repo\nnpx ts-node src/index.ts ../some-repo --verbose\n\n# With the Granite Guardian judge step (requires Ollama or watsonx env vars)\nnpx ts-node src/index.ts ../some-repo --judge --verbose\n\n# Write clean copies of flagged files to ./clean (originals untouched)\nnpx ts-node src/index.ts ../some-repo --sanitize ./clean`} />
           </div>
           <pre className={styles.pre}><code>{`# Scan a cloned repo
 npx ts-node src/index.ts ../some-repo --verbose
 
 # With the Granite Guardian judge step (requires Ollama or watsonx env vars)
-npx ts-node src/index.ts ../some-repo --judge --verbose`}</code></pre>
+npx ts-node src/index.ts ../some-repo --judge --verbose
+
+# Write clean copies of flagged files to ./clean (originals untouched)
+npx ts-node src/index.ts ../some-repo --sanitize ./clean`}</code></pre>
         </div>
-        <p className={styles.note}>Exit code <code className={styles.ic}>2</code> means <strong>BLOCK</strong> — safe for CI pipelines.</p>
+        <p className={styles.note}>Exit code <code className={styles.ic}>2</code> means <strong>BLOCK</strong> — safe for CI pipelines. <code className={styles.ic}>--sanitize</code> writes a clean copy of each flagged file plus <code className={styles.ic}>SUBTEXT_CHANGES.md</code>, and never touches the originals.</p>
       </section>
 
       {/* ── Bob Security Gate ── */}
