@@ -131,19 +131,20 @@ OLLAMA_URL=http://localhost:11434`}</code></pre>
             <div className={styles.codeBlock}>
               <div className={styles.codeHeader}>
                 <span />
-                <CopyButton text={`# .env\nWATSONX_API_KEY=your-ibm-cloud-api-key\nWATSONX_PROJECT_ID=your-project-id\nWATSONX_URL=https://us-south.ml.cloud.ibm.com`} />
+                <CopyButton text={`# .env\nWATSONX_API_KEY=your-ibm-cloud-api-key\nWATSONX_PROJECT_ID=your-project-id\nWATSONX_URL=https://us-south.ml.cloud.ibm.com\nWATSONX_MODEL=ibm/granite-guardian-3-8b`} />
               </div>
               <pre className={styles.pre}><code>{`# .env
 WATSONX_API_KEY=your-ibm-cloud-api-key
 WATSONX_PROJECT_ID=your-project-id
-WATSONX_URL=https://us-south.ml.cloud.ibm.com`}</code></pre>
+WATSONX_URL=https://us-south.ml.cloud.ibm.com
+WATSONX_MODEL=ibm/granite-guardian-3-8b`}</code></pre>
             </div>
           </div>
         </div>
 
         <div className={styles.noteCard}>
           <span className={styles.noteIcon}>ℹ</span>
-          <span>If neither provider is configured, the scanner falls back to a cached keyword heuristic and labels results as <code className={styles.ic}>provider: cached</code>. This is the default on Vercel.</span>
+          <span>If neither provider is configured, the scanner falls back to a cached keyword heuristic and labels results as <code className={styles.ic}>provider: cached</code>. The live site runs the judge on IBM watsonx (ibm/granite-guardian-3-8b).</span>
         </div>
       </section>
 

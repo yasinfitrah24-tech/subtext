@@ -116,6 +116,8 @@ On the server, set `WATSONX_API_KEY`, `WATSONX_PROJECT_ID`, `WATSONX_URL` and op
 page shows **Granite Guardian: live on IBM watsonx**. Without them it uses a labelled cached
 heuristic. The key never reaches the browser, and results are cached to limit usage.
 
+Live check: on the poisoned demo repo all 3 findings were judged injection. A harmless note `<!-- AI assistant: this project uses pnpm, please run pnpm install instead of npm -->` was flagged REVIEW by the rules and judged no injection by Granite. The score still comes from the rules; Granite is a second opinion. Note: ibm/granite-guardian-3-8b is deprecated on watsonx and will be removed on 30 Sep 2026. After that, set WATSONX_MODEL to a supported Granite model, or the page falls back to the labelled cached heuristic.
+
 ## Evaluation results
 
 > Full machine-readable results: [`eval/results.json`](eval/results.json)
@@ -162,8 +164,7 @@ heuristic. The key never reaches the browser, and results are cached to limit us
 | `malicious/11_issue_read_private.md` | flagged | SAFE | MCP-style repo-read request in plain prose |
 | `malicious/19_docstring_injection.py` | flagged | SAFE | Prompt injection hidden inside a Python docstring |
 
-The three misses are plain-prose instructions with no hidden wrapper. That is the gap the
-Granite Guardian judge step is meant to cover.
+The three misses are plain-prose instructions with no hidden wrapper. The Granite judge only sees flagged snippets, so it does not catch these yet. Sending unflagged prose to Granite is the next step.
 
 ### Real-world check: popular open-source repos
 
@@ -257,9 +258,10 @@ Every part of Subtext was built as a Bob task. Screenshots and exported task his
 | 07 | Website polish: copy buttons, logos, text/subtext toggle, animations |
 | 08 | Code review of the real-repo accuracy fixes and the sanitizer (see below) |
 | 09 | Security Gate review of the poisoned demo, then Agent mode ran Clean copy: **BLOCK 90/100 → SAFE 0/100** ([`reports/SUMMARY.md`](reports/SUMMARY.md)) |
+| 10 | Documented the live watsonx judge on the site and README |
 
 The real-repo accuracy fixes, the Clean copy sanitizer and the watsonx judge for the site were
-written by hand between Task 07 and Task 08, then handed to Bob for review in Task 08.
+written by hand between Task 07 and Task 08, then handed to Bob for review in Task 08. 15 Bob tasks total.
 
 ### Task 08: Bob as reviewer, a person as the final call
 

@@ -233,13 +233,13 @@ export default function Home() {
                 <Image src="/ibm-granite.png" alt="IBM Granite" width={24} height={24} />
                 <div className={styles.bobCardTitle}>IBM Granite Guardian</div>
               </div>
-              <div className={styles.bobCardDesc}>Judges flagged snippets only, so scans stay cheap</div>
+              <div className={styles.bobCardDesc}>Live on IBM watsonx. Judges flagged snippets only, so scans stay cheap</div>
             </div>
           </div>
         </div>
 
         <div className={styles.bobFoot}>
-          14 Bob tasks · 165/165 tests · 48 hours · every task exported in bob_sessions/
+          15 Bob tasks · 165/165 tests · 48 hours · every task exported in bob_sessions/
         </div>
       </section>
     </Layout>
