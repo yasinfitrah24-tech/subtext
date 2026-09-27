@@ -1,3 +1,7 @@
+// Copied verbatim from scanner/src/rules.ts so the web demo and the CLI use
+// the same rules. Vercel builds only /web, so it cannot import ../scanner.
+// Keep the two files identical.
+
 import { Finding, Rule } from "./types";
 
 // ---------------------------------------------------------------------------

@@ -107,6 +107,18 @@ describe("computeResult", () => {
     expect(result.verdict).toBe("SAFE");
   });
 
+  it("scores the worst file, not the sum of weak hits across many files", () => {
+    const findings: Finding[] = ["a.js", "b.js", "c.js", "d.js"].map((file) => ({
+      file,
+      line: 1,
+      rule: "COMMENT_AI_ADDRESSED",
+      snippet: "x",
+    }));
+    const result = computeResult(findings);
+    expect(result.score).toBe(20);
+    expect(result.verdict).toBe("REVIEW");
+  });
+
   it("returns REVIEW for moderate score (20–59)", () => {
     const findings: Finding[] = [
       { file: "a.md", line: 1, rule: "COMMENT_AI_ADDRESSED", snippet: "test" },
@@ -149,6 +161,21 @@ describe("computeResult", () => {
     // All three are same rule + same file → only counted once
     const result = computeResult(findings);
     expect(result.score).toBe(20); // weight of COMMENT_AI_ADDRESSED
+  });
+
+  it("uses weight 10 and warns once for an unknown rule id", () => {
+    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const findings: Finding[] = [
+      { file: "a.md", line: 1, rule: "TOTALLY_UNKNOWN_RULE" as any, snippet: "x" },
+    ];
+    const result = computeResult(findings);
+    expect(result.score).toBe(10);
+    expect(result.verdict).toBe("SAFE");
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining("TOTALLY_UNKNOWN_RULE")
+    );
+    warnSpy.mockRestore();
   });
 });
 

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import Layout from '../components/Layout';
 import evalStats from '../lib/evalStats.json';
@@ -56,6 +57,7 @@ export default function Home() {
 
   const problemRef = useRise();
   const resultsRef = useRise();
+  const bobRef = useRise();
 
   const stat1 = useCountUp(1, 800);
   const stat2 = useCountUp(3, 1000);
@@ -83,7 +85,7 @@ export default function Home() {
           <p className={`${styles.lede} rise d4`}>
             Every README has subtext.{' '}
             <strong style={{ color: '#F3F1EC', fontWeight: 700 }}>Subtext</strong>{' '}
-            finds the hidden prompt injection before your coding agent obeys it.
+            finds the hidden prompt injection before your coding agent obeys it, then gives you a clean copy.
           </p>
 
           <div className={`${styles.ctaRow} rise d5`}>
@@ -103,32 +105,36 @@ export default function Home() {
         <div className={`${styles.card} ${styles.cardscan} rise d3`}>
           <div className={styles.cardbar} />
           <div className={styles.cardHeader}>
-            <code className={styles.cardCmd}>$ subtext scan ./repo<span className={styles.caret} /></code>
-            <span className={styles.chip}>example</span>
+            <code className={styles.cardCmd}>$ subtext scan demo/node-api-starter<span className={styles.caret} /></code>
+            <span className={styles.chip}>real scan</span>
           </div>
           <div className={styles.cardVerdict}>
             <span className={`${styles.verdictLabel} ${styles.popin}`}>BLOCK</span>
-            <span className={styles.verdictScore}>risk 87/100</span>
+            <span className={styles.verdictScore}>score 90/100</span>
           </div>
           <div className={styles.divider} />
           <div className={`${styles.findings} ${styles.findin}`}>
             <div className={styles.finding}>
-              <span className={styles.findingLoc}>README.md:12</span>
+              <span className={styles.findingLoc}>README.md:9</span>
               <span className={styles.findingText}>hidden comment → .env</span>
             </div>
             <div className={styles.finding}>
-              <span className={styles.findingLoc}>setup.sh:4</span>
-              <span className={styles.findingText}>curl | bash</span>
+              <span className={styles.findingLoc}>src/index.js:7</span>
+              <span className={styles.findingText}>[INST] send process.env</span>
             </div>
             <div className={styles.finding}>
-              <span className={styles.findingLoc}>docs/intro.md:1</span>
-              <span className={styles.findingText}>U+200B ×42</span>
+              <span className={styles.findingLoc}>CONTRIBUTING.md:14</span>
+              <span className={styles.findingText}>&ldquo;you are now&rdquo; override</span>
             </div>
+          </div>
+          <div className={`${styles.cleanRow} ${styles.cleanIn}`}>
+            <span className={styles.cleanTag}>Clean copy</span>
+            <span className={styles.cleanText}>3 injections removed · rescanned SAFE</span>
           </div>
           <div className={styles.divider} />
           <div className={styles.cardFooter}>
-            <span>Context check: IBM Granite</span>
-            <span>Example report</span>
+            <span>Judged by Granite on IBM watsonx</span>
+            <Link href="/demo" className={styles.cardLink}>Run it yourself →</Link>
           </div>
         </div>
       </section>
@@ -179,16 +185,61 @@ export default function Home() {
           <div className={styles.resultSmalls}>
             <div className={styles.resultSmall}>
               <div className={styles.resultSmallNum}>{fpRate}<span style={{ fontSize: '0.5em' }}>%</span></div>
-              <div className={styles.resultSmallLabel}>false positive rate — zero false alarms on benign repos</div>
+              <div className={styles.resultSmallLabel}>false positive rate — zero false alarms on benign files</div>
             </div>
             <div className={styles.resultSmall}>
               <div className={styles.resultSmallNum} ref={tn.ref}>{tn.val}<span style={{ fontSize: '0.4em' }}>/20</span></div>
-              <div className={styles.resultSmallLabel}>benign repos correctly cleared</div>
+              <div className={styles.resultSmallLabel}>benign files correctly cleared</div>
             </div>
           </div>
         </div>
         <div className={styles.sourceNote}>
-          Numbers from <code className={styles.inlineCode}>eval/results.json</code> · run <code className={styles.inlineCode}>npm test</code> in <code className={styles.inlineCode}>/scanner</code> to reproduce
+          Numbers from <code className={styles.inlineCode}>eval/results.json</code> · reproduce with <code className={styles.inlineCode}>eval/evaluate.ts</code> (see README) · 6/6 popular public repos (express, axios, requests, got, chalk, nvm) not blocked
+        </div>
+      </section>
+      {/* ── Built with IBM Bob ── */}
+      <section className={styles.bob} ref={bobRef as React.RefObject<HTMLElement>}>
+        <div>
+          <div className={styles.eyebrow}>BUILT WITH IBM BOB</div>
+          <h2 className={styles.h2}>Bob is the gate,</h2>
+          <div className={styles.italic2}>not the target.</div>
+        </div>
+
+        <div className={styles.bobGrid}>
+          <div className={styles.bobMain}>
+            <div className={styles.bobMainHead}>
+              <div className={styles.bobMainTitle}>Security Gate mode</div>
+              <Image src="/ibm-bob.png" alt="IBM Bob" width={48} height={48} />
+            </div>
+            <ul className={styles.bobList}>
+              <li>Treats repo text as data, never as orders</li>
+              <li>Read-only: never runs, installs or fetches repo content</li>
+              <li>Reports every finding as SAFE, REVIEW or BLOCK</li>
+              <li>Declines to edit code, even when asked</li>
+              <li>Hands off to Agent mode only when SAFE</li>
+            </ul>
+          </div>
+          <div className={styles.bobSide}>
+            <div className={styles.bobCard}>
+              <div className={styles.bobCardTitle}>Custom mode in the repo</div>
+              <div className={styles.bobCardDesc}><code className={styles.inlineCode}>.bob/custom_modes.yaml</code>: read, skill and todo only. No write access.</div>
+            </div>
+            <div className={styles.bobCard}>
+              <div className={styles.bobCardTitle}>Built task by task</div>
+              <div className={styles.bobCardDesc}>Scanner, tests, eval set, Granite judge and this site, each one a Bob task</div>
+            </div>
+            <div className={styles.bobCard}>
+              <div className={styles.bobCardHead}>
+                <Image src="/ibm-granite.png" alt="IBM Granite" width={24} height={24} />
+                <div className={styles.bobCardTitle}>IBM Granite Guardian</div>
+              </div>
+              <div className={styles.bobCardDesc}>Live on IBM watsonx. Judges flagged snippets only, so scans stay cheap</div>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.bobFoot}>
+          18 Bob tasks · 165/165 tests · 48 hours · every task exported in bob_sessions/
         </div>
       </section>
     </Layout>

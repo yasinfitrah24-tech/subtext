@@ -10,7 +10,7 @@ const STEPS = [
     title: 'Repo opened',
     desc: 'Read-only, never run',
     icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#DCE3EC" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#DCE3EC" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
       </svg>
     ),
@@ -23,14 +23,15 @@ const STEPS = [
     desc: 'Security Gate mode',
     icon: null,
     imgSrc: '/ibm-bob.png',
+    imgSize: 42,
     hot: false,
   },
   {
     num: '03',
     title: 'Rules scan',
-    desc: '11 patterns, under 10 ms',
+    desc: '11 rules, under 1 ms a file',
     icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#DCE3EC" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#DCE3EC" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M7 3h7l4 4v14H7z"/>
         <path d="M14 3v4h4"/>
         <path d="M10 10h5M10 17h3"/>
@@ -43,9 +44,10 @@ const STEPS = [
   {
     num: '04',
     title: 'Granite judges',
-    desc: 'Flagged snippets only',
+    desc: 'Live on IBM watsonx',
     icon: null,
     imgSrc: '/ibm-granite.png',
+    imgSize: 34,
     hot: false,
   },
   {
@@ -53,7 +55,7 @@ const STEPS = [
     title: 'Verdict',
     desc: 'SAFE · REVIEW · BLOCK',
     icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F2A93B" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F2A93B" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <rect x="8" y="2.5" width="8" height="19" rx="4"/>
         <circle cx="12" cy="7" r="1.4"/>
         <circle cx="12" cy="12" r="1.4"/>
@@ -99,19 +101,22 @@ export default function HowItWorksPage() {
         <div className={styles.pipeInner}>
           {STEPS.map((step, idx) => (
             <div key={step.num} className={styles.pipeRow}>
-              <div className={`${styles.step} rise`} style={{ animationDelay: `${0.08 + idx * 0.12}s` }}>
+              <div className={`${styles.step} rise`} style={{ animationDelay: `${0.15 + idx * 0.3}s` }}>
                 <div
                   className={styles.stepCircle}
                   style={{
                     borderColor: step.hot ? '#F2A93B' : '#2A3650',
                     background: step.hot ? '#2A2415' : '#161F31',
+                    animationDelay: `${1 + idx * 1.2}s`,
                   }}
                 >
-                  {step.imgSrc ? (
-                    <Image src={step.imgSrc} alt={step.title} width={40} height={40} style={{ objectFit: 'contain' }} />
-                  ) : (
-                    step.icon
-                  )}
+                  <span className={styles.stepIcon}>
+                    {step.imgSrc ? (
+                      <Image src={step.imgSrc} alt={step.title} width={(step as { imgSize?: number }).imgSize ?? 34} height={(step as { imgSize?: number }).imgSize ?? 34} style={{ objectFit: 'contain' }} />
+                    ) : (
+                      step.icon
+                    )}
+                  </span>
                 </div>
                 <div className={styles.stepNum}>{step.num}</div>
                 <div className={styles.stepTitle} style={{ color: step.hot ? '#F2A93B' : '#F3F1EC' }}>{step.title}</div>
@@ -124,6 +129,29 @@ export default function HowItWorksPage() {
               )}
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ── After the scan: clean copy ── */}
+      <section className={styles.after}>
+        <div>
+          <div className={styles.eyebrowTeal}>AFTER THE SCAN</div>
+          <h2 className={styles.h2}>BLOCK is not the end.</h2>
+          <div className={styles.italicTeal}>Get a clean copy.</div>
+        </div>
+        <div className={styles.afterGrid}>
+          <div className={styles.afterCard}>
+            <div className={styles.afterTitle}>Hidden text removed</div>
+            <p className={styles.afterDesc}>Invisible characters are stripped. Comments addressed to an AI and lines that give the agent orders are replaced by a <code className={styles.afterCode}>[Subtext]</code> marker.</p>
+          </div>
+          <div className={styles.afterCard}>
+            <div className={styles.afterTitle}>Rescanned and listed</div>
+            <p className={styles.afterDesc}>The copy is scanned again to confirm it is clean, and every change is listed by line. The original repo is never modified.</p>
+          </div>
+          <div className={styles.afterCard}>
+            <div className={styles.afterTitle}>One button or one flag</div>
+            <p className={styles.afterDesc}>On the demo, press <b>Get clean copy</b> on any flagged file. In the CLI, add <code className={styles.afterCode}>--sanitize ./clean</code>.</p>
+          </div>
         </div>
       </section>
 
@@ -140,13 +168,13 @@ export default function HowItWorksPage() {
               className={`${styles.toggleBtn} ${humanView ? styles.toggleActive : ''}`}
               onClick={() => setHumanView(true)}
             >
-              Human view
+              Text · what you see
             </button>
             <button
               className={`${styles.toggleBtn} ${!humanView ? styles.toggleActive : ''}`}
               onClick={() => setHumanView(false)}
             >
-              Agent view
+              Subtext · what the agent reads
             </button>
             <div className={styles.toggleSlider} style={{ transform: humanView ? 'translateX(0)' : 'translateX(100%)' }} />
           </div>
@@ -206,7 +234,7 @@ export default function HowItWorksPage() {
       <section className={styles.rules}>
         <h2 className={styles.h2}>11 detection rules</h2>
         <p className={styles.body} style={{ marginBottom: '32px' }}>
-          Each rule returns a weighted score (0–100). A file hits REVIEW at 20+ and BLOCK at 60+.
+          Each rule adds its weight to the file's score (0–100). A file hits REVIEW at 20+ and BLOCK at 60+, and the repo takes the score of its worst file.
         </p>
         <div className={styles.rulesTable}>
           {ATTACK_TYPES.map((r) => (
@@ -225,7 +253,7 @@ export default function HowItWorksPage() {
       {/* ── CTA ── moved here from Home page */}
       <section className={styles.footerCta}>
         <div>
-          <div className={styles.footerH}>Scan first.</div>
+          <div className={styles.footerH}>Scan first. Clean what&rsquo;s hidden.</div>
           <div className={styles.footerItalic}>Then let the agent read.</div>
         </div>
         <Link href="/demo" className={styles.ctaPrimary}>

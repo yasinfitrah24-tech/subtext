@@ -14,6 +14,7 @@ interface RepoScanResponse {
   filesScanned: number;
   filesSkipped: number;
   repo: string;
+  ref?: string;
   cached?: boolean;
   error?: string;
 }
@@ -241,6 +242,7 @@ async function _handler(req: NextApiRequest, res: NextApiResponse<RepoScanRespon
     filesScanned,
     filesSkipped,
     repo: repoLabel,
+    ref,
   };
 
   setCached(key, result);

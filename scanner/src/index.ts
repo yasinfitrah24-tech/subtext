@@ -19,10 +19,11 @@ import { scanDirectory } from "./scanner";
 import { judgeFindings } from "./judge/index";
 import type { JudgeResult } from "./judge/index";
 import { Finding } from "./types";
+import { sanitize } from "./sanitize";
 
 function usage(): void {
   console.error(
-    "Usage: scanner <target-directory> [--output <path>] [--verbose] [--judge]"
+    "Usage: scanner <target-directory> [--output <path>] [--verbose] [--judge] [--sanitize <dir>]"
   );
   process.exit(1);
 }
@@ -32,12 +33,14 @@ function parseArgs(argv: string[]): {
   outputPath: string;
   verbose: boolean;
   judge: boolean;
+  sanitizeDir: string | null;
 } {
   const args = argv.slice(2); // strip node + script
   let targetDir = "";
   let outputPath = "results.json";
   let verbose = false;
   let judge = false;
+  let sanitizeDir: string | null = null;
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--output" || args[i] === "-o") {
@@ -46,17 +49,29 @@ function parseArgs(argv: string[]): {
       verbose = true;
     } else if (args[i] === "--judge") {
       judge = true;
+    } else if (args[i] === "--sanitize") {
+      const next = args[i + 1];
+      if (next && !next.startsWith("-")) {
+        sanitizeDir = next;
+        i++;
+      } else {
+        sanitizeDir = "subtext-clean";
+      }
     } else if (!args[i].startsWith("-")) {
       targetDir = args[i];
     }
   }
 
   if (!targetDir) usage();
-  return { targetDir, outputPath, verbose, judge };
+  if (sanitizeDir !== null && targetDir && path.resolve(sanitizeDir) === path.resolve(targetDir)) {
+    console.error("Error: --sanitize must write to a different folder than the one scanned.");
+    process.exit(1);
+  }
+  return { targetDir, outputPath, verbose, judge, sanitizeDir };
 }
 
 async function main(): Promise<void> {
-  const { targetDir, outputPath, verbose, judge } = parseArgs(process.argv);
+  const { targetDir, outputPath, verbose, judge, sanitizeDir } = parseArgs(process.argv);
 
   const absTarget = path.resolve(targetDir);
   if (!fs.existsSync(absTarget)) {
@@ -138,10 +153,69 @@ async function main(): Promise<void> {
     }
   }
 
+  // ----- Optional clean copies of flagged files -----
+  if (sanitizeDir !== null && result.findings.length > 0) {
+    writeCleanCopies(absTarget, path.resolve(sanitizeDir), result.findings);
+  } else if (sanitizeDir !== null) {
+    console.log("Nothing to sanitize: no findings.");
+  }
+
   // Exit with non-zero code for BLOCK verdicts so CI pipelines can catch it
   if (result.verdict === "BLOCK") {
     process.exit(2);
   }
+}
+
+/**
+ * Write a sanitized copy of every flagged file into outDir, mirroring the
+ * repo layout, plus SUBTEXT_CHANGES.md listing each edit. The scanned repo is
+ * never modified.
+ */
+function writeCleanCopies(root: string, outDir: string, findings: Finding[]): void {
+  const files = [...new Set(findings.map((f) => f.file))].sort();
+  const report: string[] = [
+    "# Subtext clean copies",
+    "",
+    `Source: ${root}`,
+    "",
+    "Each file below is a copy with the flagged content removed or neutralised.",
+    "The original repository was not modified. Review the changes before use.",
+    "",
+  ];
+  let remainingTotal = 0;
+
+  for (const file of files) {
+    const rel = path.relative(root, file);
+    if (rel.startsWith("..")) continue;
+    let content: string;
+    try {
+      content = fs.readFileSync(file, "utf8");
+    } catch {
+      continue;
+    }
+    const { clean, changes, remaining } = sanitize(content, rel);
+    const dest = path.join(outDir, rel);
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.writeFileSync(dest, clean, "utf8");
+    remainingTotal += remaining.length;
+
+    report.push(`## ${rel}`, "");
+    for (const c of changes) {
+      const where = c.through ? `lines ${c.line}-${c.through}` : `line ${c.line}`;
+      report.push(`- ${where}: ${c.action} (${c.rules.join(", ")})`);
+    }
+    if (remaining.length > 0) {
+      report.push(`- ${remaining.length} finding(s) could not be removed automatically; review by hand.`);
+    }
+    report.push("");
+  }
+
+  fs.mkdirSync(outDir, { recursive: true });
+  fs.writeFileSync(path.join(outDir, "SUBTEXT_CHANGES.md"), report.join("\n"), "utf8");
+  console.log(
+    `Clean copies of ${files.length} file(s) written to: ${outDir}` +
+      (remainingTotal ? ` (${remainingTotal} finding(s) need manual review)` : "")
+  );
 }
 
 main().catch((err) => {

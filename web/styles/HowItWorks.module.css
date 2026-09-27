@@ -65,6 +65,7 @@
 .pipeInner {
   display: flex;
   align-items: flex-start;
+  justify-content: center;
   gap: 0;
   flex-wrap: wrap;
 }
@@ -93,13 +94,23 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-  animation: ring 5s ease-in-out infinite;
+  animation: ring 6s ease-in-out infinite both;
   flex-shrink: 0;
 }
 
+/* Each circle lights up in turn: 1.2s apart (delay set inline), 6s cycle */
 @keyframes ring {
-  0%, 12%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,.35); }
-  4% { box-shadow: 0 0 0 8px rgba(242,169,59,.22), 0 10px 30px rgba(0,0,0,.35); }
+  0%, 18%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  8% { box-shadow: 0 0 0 8px rgba(242,169,59,.25), 0 0 24px rgba(242,169,59,.35), 0 10px 30px rgba(0,0,0,.35); }
+}
+
+/* Same box for every icon so SVGs and logos read at one size */
+.stepIcon {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .stepNum {
@@ -191,7 +202,8 @@
 /* ── Toggle ── */
 .toggleWrap {
   position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   padding: 4px;
   background: #161F31;
   border: 1px solid #2A3650;
@@ -481,4 +493,67 @@
   .stepCircle {
     animation: none;
   }
+}
+
+/* ── After the scan ── */
+.after {
+  padding: 60px clamp(24px, 8vw, 120px) 70px;
+  border-top: 1px solid #1E2940;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.eyebrowTeal {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: #3CC2AE;
+  margin-bottom: 6px;
+}
+
+.italicTeal {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1.1;
+  padding-bottom: 4px;
+  color: #3CC2AE;
+}
+
+.afterGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+.afterCard {
+  background: #161F31;
+  border: 1px solid #2A3650;
+  border-top: 2px solid #3CC2AE;
+  border-radius: 12px;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.afterCard:hover { transform: translateY(-3px); border-color: #3A4660; border-top-color: #3CC2AE; }
+
+.afterTitle { font-size: 18px; font-weight: 600; color: #F3F1EC; }
+.afterDesc { margin: 0; font-size: 15px; line-height: 1.55; color: #AEBBD0; }
+
+.afterCode {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9em;
+  background: #0A0F1A;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: #3CC2AE;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .afterCard { transition: none; }
 }

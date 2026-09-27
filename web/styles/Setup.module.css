@@ -95,20 +95,28 @@
 
 .copyBtn {
   flex-shrink: 0;
-  padding: 3px 10px;
-  border: 1px solid #2A3650;
-  border-radius: 999px;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
   background: transparent;
   color: #7F8CA3;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .copyBtn:hover {
-  border-color: #F2A93B;
-  color: #F2A93B;
+  background: rgba(255, 255, 255, 0.05);
+  color: #F3F1EC;
+}
+
+.copyDone,
+.copyDone:hover {
+  color: #3CC2AE;
 }
 
 .pre {

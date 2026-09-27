@@ -250,7 +250,8 @@
   font-size: clamp(40px, 5vw, 60px);
   font-weight: 700;
   line-height: 1;
-  color: #F2A93B;
+  /* Same BLOCK red as the Demo page (SAFE teal, REVIEW amber, BLOCK red) */
+  color: #F05A5A;
 }
 
 .verdictScore {
@@ -484,3 +485,185 @@
   border-radius: 4px;
   color: #AEBBD0;
 }
+
+/* ── Local keyframes ──
+   CSS Modules scope animation names, so the keyframes in globals.css are not
+   visible here. Without these, BLOCK/findings stayed at opacity 0 and the
+   scan-line never moved. */
+@keyframes pop {
+  0%   { opacity: 0; transform: scale(.85); }
+  60%  { opacity: 1; transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes cardsweep {
+  0%        { top: -10%; opacity: 0; }
+  8%        { opacity: 1; }
+  40%       { top: 105%; opacity: 1; }
+  41%, 100% { top: 105%; opacity: 0; }
+}
+@keyframes drift {
+  0%   { background-position: 70% 20%; }
+  100% { background-position: 95% 45%; }
+}
+@keyframes caret {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* ── Built with IBM Bob ── */
+.bob {
+  padding: 90px clamp(24px, 8vw, 120px) 90px;
+  border-top: 1px solid #1E2940;
+  display: flex;
+  flex-direction: column;
+  gap: 44px;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s cubic-bezier(.2,.7,.2,1), transform 0.7s cubic-bezier(.2,.7,.2,1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bob { opacity: 1; transform: none; transition: none; }
+}
+
+.bobGrid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 28px;
+}
+
+@media (max-width: 860px) {
+  .bobGrid { grid-template-columns: 1fr; }
+}
+
+.bobMain {
+  background: #161F31;
+  border: 2px solid #F2A93B;
+  border-radius: 12px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.bobMainHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.bobMainTitle {
+  font-size: 22px;
+  font-weight: 600;
+  color: #F2A93B;
+}
+
+.bobList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 16px;
+  color: #DCE3EC;
+}
+
+.bobList li::before {
+  content: '→';
+  color: #F2A93B;
+  margin-right: 10px;
+}
+
+.bobSide {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.bobCard {
+  background: #161F31;
+  border: 1px solid #2A3650;
+  border-radius: 12px;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.bobCard:hover {
+  transform: translateY(-3px);
+  border-color: #4A5670;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bobCard { transition: none; }
+}
+
+.bobCardHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bobCardTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #F3F1EC;
+}
+
+.bobCardDesc {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #AEBBD0;
+}
+
+.bobFoot {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(14px, 1.4vw, 18px);
+  color: #F3F1EC;
+}
+
+.cardLink {
+  color: #F2A93B;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.cardLink:hover { text-decoration: underline; }
+
+/* Clean copy row: appears after the findings */
+.cleanRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #3CC2AE;
+  border-radius: 8px;
+  background: rgba(60, 194, 174, 0.08);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+
+.cleanIn {
+  opacity: 0;
+  animation: rise 0.45s ease-out 2.6s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cleanIn { opacity: 1; animation: none; }
+}
+
+.cleanTag {
+  color: #3CC2AE;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.cleanText { color: #DCE3EC; }

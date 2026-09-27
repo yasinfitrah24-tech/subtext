@@ -11,8 +11,22 @@ function CopyButton({ text }: { text: string }) {
     });
   }, [text]);
   return (
-    <button className={styles.copyBtn} onClick={copy} aria-label="Copy to clipboard">
-      {copied ? 'Copied' : 'Copy'}
+    <button
+      className={`${styles.copyBtn} ${copied ? styles.copyDone : ''}`}
+      onClick={copy}
+      aria-label={copied ? 'Copied' : 'Copy to clipboard'}
+      title={copied ? 'Copied' : 'Copy'}
+    >
+      {copied ? (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5 12.5l4.5 4.5L19 7.5" />
+        </svg>
+      ) : (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="9" y="9" width="12" height="12" rx="3" />
+          <path d="M15 5.5V5a2 2 0 0 0-2-2H6a3 3 0 0 0-3 3v7a2 2 0 0 0 2 2h.5" />
+        </svg>
+      )}
     </button>
   );
 }
@@ -56,15 +70,18 @@ npm run build`}</code></pre>
         <div className={styles.codeBlock}>
           <div className={styles.codeHeader}>
             <span>Scan a cloned repo</span>
-            <CopyButton text={`# Scan a cloned repo\nnpx ts-node src/index.ts ../some-repo --verbose\n\n# With the Granite Guardian judge step (requires Ollama or watsonx env vars)\nnpx ts-node src/index.ts ../some-repo --judge --verbose`} />
+            <CopyButton text={`# Scan a cloned repo\nnpx ts-node src/index.ts ../some-repo --verbose\n\n# With the Granite Guardian judge step (requires Ollama or watsonx env vars)\nnpx ts-node src/index.ts ../some-repo --judge --verbose\n\n# Write clean copies of flagged files to ./clean (originals untouched)\nnpx ts-node src/index.ts ../some-repo --sanitize ./clean`} />
           </div>
           <pre className={styles.pre}><code>{`# Scan a cloned repo
 npx ts-node src/index.ts ../some-repo --verbose
 
 # With the Granite Guardian judge step (requires Ollama or watsonx env vars)
-npx ts-node src/index.ts ../some-repo --judge --verbose`}</code></pre>
+npx ts-node src/index.ts ../some-repo --judge --verbose
+
+# Write clean copies of flagged files to ./clean (originals untouched)
+npx ts-node src/index.ts ../some-repo --sanitize ./clean`}</code></pre>
         </div>
-        <p className={styles.note}>Exit code <code className={styles.ic}>2</code> means <strong>BLOCK</strong> — safe for CI pipelines.</p>
+        <p className={styles.note}>Exit code <code className={styles.ic}>2</code> means <strong>BLOCK</strong> — safe for CI pipelines. <code className={styles.ic}>--sanitize</code> writes a clean copy of each flagged file plus <code className={styles.ic}>SUBTEXT_CHANGES.md</code>, and never touches the originals.</p>
       </section>
 
       {/* ── Bob Security Gate ── */}
@@ -92,11 +109,26 @@ npx ts-node src/index.ts ../some-repo --judge --verbose`}</code></pre>
       <section className={styles.section}>
         <div className={styles.sectionNum}>04</div>
         <h2 className={styles.h2}>Optional: Granite Guardian</h2>
-        <p className={styles.body}>The rule engine runs in under 1 ms. For borderline cases you can escalate flagged snippets to IBM Granite Guardian for a second opinion.</p>
+        <p className={styles.body}>You don&rsquo;t need this to try Subtext. The scanner, Clean copy and tests run without any judge, and the Demo page already runs Granite Guardian live on IBM watsonx. Add a judge to the CLI only if you have your own watsonx key or want to run fully offline.</p>
 
         <div className={styles.providerGrid}>
           <div className={styles.providerCard}>
-            <div className={styles.providerTitle}>Ollama (local)</div>
+            <div className={styles.providerTitle}>watsonx.ai (cloud, recommended)</div>
+            <div className={styles.providerDesc}>Set three env vars (WATSONX_MODEL is optional). The scanner exchanges your API key for an IAM token automatically.</div>
+            <div className={styles.codeBlock}>
+              <div className={styles.codeHeader}>
+                <span />
+                <CopyButton text={`# .env\nWATSONX_API_KEY=your-ibm-cloud-api-key\nWATSONX_PROJECT_ID=your-project-id\nWATSONX_URL=https://us-south.ml.cloud.ibm.com\nWATSONX_MODEL=ibm/granite-guardian-3-8b`} />
+              </div>
+              <pre className={styles.pre}><code>{`# .env
+WATSONX_API_KEY=your-ibm-cloud-api-key
+WATSONX_PROJECT_ID=your-project-id
+WATSONX_URL=https://us-south.ml.cloud.ibm.com
+WATSONX_MODEL=ibm/granite-guardian-3-8b`}</code></pre>
+            </div>
+          </div>
+          <div className={styles.providerCard}>
+            <div className={styles.providerTitle}>Ollama (local, offline, ~5 GB download)</div>
             <div className={styles.providerDesc}>Pull <code className={styles.ic}>granite4.1-guardian:8b-q4_K_M</code> and set <code className={styles.ic}>OLLAMA_URL</code>.</div>
             <div className={styles.codeBlock}>
               <div className={styles.codeHeader}>
@@ -108,25 +140,11 @@ npx ts-node src/index.ts ../some-repo --judge --verbose`}</code></pre>
 OLLAMA_URL=http://localhost:11434`}</code></pre>
             </div>
           </div>
-          <div className={styles.providerCard}>
-            <div className={styles.providerTitle}>watsonx.ai (cloud)</div>
-            <div className={styles.providerDesc}>Set three env vars. The scanner exchanges your API key for an IAM token automatically.</div>
-            <div className={styles.codeBlock}>
-              <div className={styles.codeHeader}>
-                <span />
-                <CopyButton text={`# .env\nWATSONX_API_KEY=your-ibm-cloud-api-key\nWATSONX_PROJECT_ID=your-project-id\nWATSONX_URL=https://us-south.ml.cloud.ibm.com`} />
-              </div>
-              <pre className={styles.pre}><code>{`# .env
-WATSONX_API_KEY=your-ibm-cloud-api-key
-WATSONX_PROJECT_ID=your-project-id
-WATSONX_URL=https://us-south.ml.cloud.ibm.com`}</code></pre>
-            </div>
-          </div>
         </div>
 
         <div className={styles.noteCard}>
           <span className={styles.noteIcon}>ℹ</span>
-          <span>If neither provider is configured, the scanner falls back to a cached keyword heuristic and labels results as <code className={styles.ic}>provider: cached</code>. This is the default on Vercel.</span>
+          <span>If neither provider is configured, the scanner falls back to a cached keyword heuristic and labels results as <code className={styles.ic}>provider: cached</code>. The live site runs the judge on IBM watsonx (ibm/granite-guardian-3-8b).</span>
         </div>
       </section>
 
