@@ -14,7 +14,12 @@ import { JudgeResult, Snippet } from "./types";
 import { parseGuardianResponse } from "./parseScore";
 import { loadEnv } from "./loadEnv";
 
-const WATSONX_MODEL = "ibm/granite-guardian-3-8b";
+// Override with WATSONX_MODEL if your region lists a different Granite
+// Guardian ID in Prompt Lab (for example a newer 3.x release).
+const DEFAULT_WATSONX_MODEL = "ibm/granite-guardian-3-8b";
+function watsonxModel(): string {
+  return process.env["WATSONX_MODEL"] || DEFAULT_WATSONX_MODEL;
+}
 
 /** Obtain an IBM Cloud IAM bearer token by exchanging the API key. */
 async function getIamToken(apiKey: string): Promise<string> {
@@ -76,7 +81,7 @@ export async function judgeWithWatsonx(snippet: Snippet): Promise<JudgeResult> {
   const token = await getIamToken(apiKey);
 
   const body = {
-    model_id: WATSONX_MODEL,
+    model_id: watsonxModel(),
     project_id: projectId,
     messages: buildMessages(snippet),
     parameters: { max_new_tokens: 400 },
@@ -111,7 +116,7 @@ export async function judgeWithWatsonx(snippet: Snippet): Promise<JudgeResult> {
 
   return {
     provider: "watsonx",
-    model: WATSONX_MODEL,
+    model: watsonxModel(),
     guardian_risk,
     reason,
     latency_ms,

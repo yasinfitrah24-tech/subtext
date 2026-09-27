@@ -71,6 +71,11 @@ function isWatsonxConfigured(): boolean {
  * Run the judge on a single snippet, using whichever provider is available.
  */
 export async function judgeSnippet(snippet: Snippet): Promise<JudgeResult> {
+  // JUDGE_PROVIDER=watsonx|ollama|cached forces one provider (default: auto).
+  const forced = (process.env["JUDGE_PROVIDER"] ?? "").toLowerCase();
+  if (forced === "watsonx" && isWatsonxConfigured()) return judgeWithWatsonx(snippet);
+  if (forced === "ollama") return judgeWithOllama(snippet);
+  if (forced === "cached") return judgeWithCache(snippet);
   if (await isOllamaAvailable()) {
     return judgeWithOllama(snippet);
   }

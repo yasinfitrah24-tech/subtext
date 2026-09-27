@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Layout from '../components/Layout';
 import styles from '../styles/Demo.module.css';
 import type { Finding } from '../lib/types';
@@ -17,6 +17,14 @@ interface ScanResult {
   cached?: boolean;
   error?: string;
   judgeMode?: 'live' | 'cached';
+}
+
+interface JudgeVerdict { risk: boolean; reason: string }
+interface JudgeState {
+  provider: 'watsonx' | 'cached';
+  model: string;
+  byText: Record<string, JudgeVerdict>;
+  loading: boolean;
 }
 
 const DEMO_REPO_URL = 'https://github.com/yasinfitrah24-tech/subtext/tree/main/demo/node-api-starter';
@@ -100,7 +108,8 @@ function mergeFindings(
 }
 
 /** Single finding row (one per de-duplicated file+line, with ≥1 rule badges). */
-function FindingRow({ f }: { f: MergedFinding }) {
+function FindingRow({ f, judge }: { f: MergedFinding; judge?: JudgeState }) {
+  const verdict = judge?.byText[f.snippet];
   return (
     <div className={styles.findingRow}>
       <div className={styles.findingMeta}>
@@ -110,6 +119,15 @@ function FindingRow({ f }: { f: MergedFinding }) {
             {RULE_LABELS[rule] ?? rule}
           </span>
         ))}
+        {verdict && (
+          <span
+            className={verdict.risk ? styles.judgeRisk : styles.judgeOk}
+            title={verdict.reason}
+          >
+            Granite{judge!.provider === 'cached' ? ' (cached)' : ''}: {verdict.risk ? 'injection' : 'no injection'}
+          </span>
+        )}
+        {!verdict && judge?.loading && <span className={styles.judgePending}>Granite judging…</span>}
       </div>
       <code className={styles.findingSnippet}>{f.snippet}</code>
     </div>
@@ -120,9 +138,11 @@ function FindingRow({ f }: { f: MergedFinding }) {
 function FindingsList({
   findings,
   cleanSourceFor,
+  judge,
 }: {
   findings: (Finding & { fileRelative?: string })[];
   cleanSourceFor?: (f: MergedFinding) => CleanSource | undefined;
+  judge?: JudgeState;
 }) {
   // De-duplicate: collapse multiple rules on the same file+line into one card
   const merged = mergeFindings(findings);
@@ -163,6 +183,7 @@ function FindingsList({
           findings={items}
           defaultOpen={expandedByDefault.has(file)}
           cleanSource={cleanSourceFor ? cleanSourceFor(items[0]) : undefined}
+          judge={judge}
         />
       ))}
     </div>
@@ -278,11 +299,13 @@ function FileGroup({
   findings,
   defaultOpen,
   cleanSource,
+  judge,
 }: {
   file: string;
   findings: MergedFinding[];
   defaultOpen: boolean;
   cleanSource?: CleanSource;
+  judge?: JudgeState;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -299,7 +322,7 @@ function FileGroup({
       {open && (
         <div className={styles.fileGroupBody}>
           {findings.map((f, i) => (
-            <FindingRow key={i} f={f} />
+            <FindingRow key={i} f={f} judge={judge} />
           ))}
           {cleanSource && <CleanCopy source={cleanSource} fileLabel={file} />}
         </div>
@@ -308,19 +331,65 @@ function FileGroup({
   );
 }
 
-function JudgeNote({ mode }: { mode: 'live' | 'cached' }) {
+function JudgeNote({ live, model }: { live: boolean | null; model?: string }) {
+  if (live === null) return null;
+  const color = live ? '#3CC2AE' : '#F2A93B';
+  const border = live ? '#3CC2AE' : '#5A4520';
   return (
-    <div className={styles.judgeNote} style={{ borderColor: mode === 'live' ? '#3CC2AE' : '#5A4520' }}>
-      <span className={styles.judgeBadge} style={{ background: mode === 'live' ? 'rgba(60,194,174,0.12)' : 'rgba(242,169,59,0.08)', color: mode === 'live' ? '#3CC2AE' : '#F2A93B', border: `1px solid ${mode === 'live' ? '#3CC2AE' : '#5A4520'}` }}>
-        Granite Guardian: {mode === 'live' ? '🟢 live' : '🟡 cached'}
+    <div className={styles.judgeNote} style={{ borderColor: border }}>
+      <span className={styles.judgeBadge} style={{ background: live ? 'rgba(60,194,174,0.12)' : 'rgba(242,169,59,0.08)', color, border: `1px solid ${border}` }}>
+        Granite Guardian: {live ? 'live on IBM watsonx' : 'cached'}
       </span>
-      {mode === 'cached' ? (
-        <span className={styles.judgeDesc}>No Ollama or watsonx credentials detected — showing cached keyword heuristic. Set <code>WATSONX_*</code> env vars or run Ollama locally for live results.</span>
+      {live ? (
+        <span className={styles.judgeDesc}>After each scan, up to 5 flagged snippets are judged by IBM Granite Guardian ({model}) on watsonx.ai.</span>
       ) : (
-        <span className={styles.judgeDesc}>Flagged snippets are being evaluated by IBM Granite Guardian in real time.</span>
+        <span className={styles.judgeDesc}>No watsonx credentials on this server, so flagged snippets get a cached keyword heuristic. Run the CLI with <code>--judge</code> and Ollama or watsonx for real Granite verdicts.</span>
       )}
     </div>
   );
+}
+
+/** Top flagged snippets (most severe first) to send to the judge. */
+function topSnippets(findings: (Finding & { fileRelative?: string })[]) {
+  const merged = mergeFindings(findings);
+  merged.sort(
+    (a, b) =>
+      Math.max(...b.rules.map((r) => RULE_WEIGHT[r] ?? 10)) - Math.max(...a.rules.map((r) => RULE_WEIGHT[r] ?? 10)),
+  );
+  const seen = new Set<string>();
+  const out: { text: string; rule: string; file: string; line: number }[] = [];
+  for (const m of merged) {
+    if (seen.has(m.snippet)) continue;
+    seen.add(m.snippet);
+    out.push({ text: m.snippet, rule: m.rules[0], file: m.fileRelative ?? m.file, line: m.line });
+    if (out.length === 5) break;
+  }
+  return out;
+}
+
+function useJudge(result: ScanResult | null): JudgeState | undefined {
+  const [state, setState] = useState<JudgeState | undefined>(undefined);
+  useEffect(() => {
+    if (!result || result.findings.length === 0) { setState(undefined); return; }
+    let cancelled = false;
+    const snippets = topSnippets(result.findings);
+    setState({ provider: 'cached', model: '', byText: {}, loading: true });
+    fetch('/api/judge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ snippets }),
+    })
+      .then((r) => r.json())
+      .then((data: { provider: 'watsonx' | 'cached'; model: string; results: { text: string; risk: boolean; reason: string }[] }) => {
+        if (cancelled) return;
+        const byText: Record<string, JudgeVerdict> = {};
+        for (const r of data.results ?? []) byText[r.text] = { risk: r.risk, reason: r.reason };
+        setState({ provider: data.provider, model: data.model, byText, loading: false });
+      })
+      .catch(() => { if (!cancelled) setState(undefined); });
+    return () => { cancelled = true; };
+  }, [result]);
+  return state;
 }
 
 function RateLimitNotice() {
@@ -358,8 +427,16 @@ export default function DemoPage() {
 
   const pasteRef = useRef<HTMLTextAreaElement>(null);
 
-  const judgeMode: 'live' | 'cached' =
-    process.env.NEXT_PUBLIC_WATSONX_CONFIGURED === 'true' ? 'live' : 'cached';
+  const [judgeLive, setJudgeLive] = useState<boolean | null>(null);
+  const [judgeModel, setJudgeModel] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    fetch('/api/judge')
+      .then((r) => r.json())
+      .then((d: { live: boolean; model?: string }) => { setJudgeLive(d.live); setJudgeModel(d.model); })
+      .catch(() => setJudgeLive(false));
+  }, []);
+  const pasteJudge = useJudge(pasteResult);
+  const repoJudge = useJudge(repoResult);
 
   async function handlePasteScan() {
     if (!pasteContent.trim()) return;
@@ -432,7 +509,7 @@ export default function DemoPage() {
         <p className={styles.body}>
           Paste a file or a GitHub URL. Content is scanned in memory and never stored. Every flagged file comes with a clean copy you can hand to your agent.
         </p>
-        <JudgeNote mode={judgeMode} />
+        <JudgeNote live={judgeLive} model={judgeModel} />
       </section>
 
       {/* ── Tabs ── */}
@@ -502,6 +579,7 @@ export default function DemoPage() {
                 <VerdictBadge verdict={pasteResult.verdict} score={pasteResult.score} />
                 <FindingsList
                   findings={pasteResult.findings}
+                  judge={pasteJudge}
                   cleanSourceFor={() => ({ content: pasteContent, filename: pasteFilename || 'pasted-file.txt' })}
                 />
               </div>
@@ -561,6 +639,7 @@ export default function DemoPage() {
                 <VerdictBadge verdict={repoResult.verdict} score={repoResult.score} />
                 <FindingsList
                   findings={repoResult.findings}
+                  judge={repoJudge}
                   cleanSourceFor={(f) => {
                     const repo = repoResult.repo;
                     if (!repo || !f.file.startsWith(repo + '/')) return undefined;

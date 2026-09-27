@@ -166,8 +166,12 @@ code, .mono {
 .verdict-BLOCK { color: var(--amber); }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Run every animation once, instantly, then stop. Without the iteration
+     count, infinite loops (glow, scan-line, caret) replay every 0.01ms and
+     flicker on machines that have "reduce motion" turned on. */
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
   /* Ensure initially-hidden elements show when motion is reduced */

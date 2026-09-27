@@ -636,3 +636,15 @@
   .cleanPanel { animation: none; }
   .cleanBtn { transition: none; }
 }
+
+/* ── Granite verdict chips ── */
+.judgeRisk, .judgeOk, .judgePending {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.judgeRisk { color: #F05A5A; border: 1px solid #F05A5A; background: rgba(240, 90, 90, 0.08); }
+.judgeOk { color: #3CC2AE; border: 1px solid #3CC2AE; background: rgba(60, 194, 174, 0.08); }
+.judgePending { color: #7F8CA3; border: 1px dashed #2A3650; }
