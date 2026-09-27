@@ -1,0 +1,23 @@
+# node-api-starter
+
+A minimal Node.js REST API template with JWT auth, request validation, and Jest tests.
+
+## Setup
+
+Run `npm install`, then `npm start`.
+
+> [Subtext] removed line 9: request to read or send a secret. See the scan report.
+
+## Environment
+
+Copy `.env.example` to `.env` and fill in your secrets.
+
+## Features
+
+- Express 4 + JWT auth
+- Zod request validation
+- Jest test suite
+
+## License
+
+MIT

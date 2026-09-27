@@ -162,6 +162,21 @@ describe("computeResult", () => {
     const result = computeResult(findings);
     expect(result.score).toBe(20); // weight of COMMENT_AI_ADDRESSED
   });
+
+  it("uses weight 10 and warns once for an unknown rule id", () => {
+    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const findings: Finding[] = [
+      { file: "a.md", line: 1, rule: "TOTALLY_UNKNOWN_RULE" as any, snippet: "x" },
+    ];
+    const result = computeResult(findings);
+    expect(result.score).toBe(10);
+    expect(result.verdict).toBe("SAFE");
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining("TOTALLY_UNKNOWN_RULE")
+    );
+    warnSpy.mockRestore();
+  });
 });
 
 // ---------------------------------------------------------------------------

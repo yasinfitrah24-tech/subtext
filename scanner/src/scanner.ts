@@ -115,6 +115,9 @@ export function collectFiles(dir: string): string[] {
  *  - REVIEW: score 20–59
  *  - BLOCK : score 60–100
  */
+const RULE_WEIGHT: Map<string, number> = new Map(ALL_RULES.map((r) => [r.id, r.weight]));
+const warnedUnknownRules = new Set<string>();
+
 export function computeResult(allFindings: Finding[]): ScanResult {
   if (allFindings.length === 0) {
     return { score: 0, verdict: "SAFE", findings: [] };
@@ -132,8 +135,15 @@ export function computeResult(allFindings: Finding[]): ScanResult {
   for (const rules of perFile.values()) {
     let fileScore = 0;
     for (const id of rules) {
-      const rule = ALL_RULES.find((r) => r.id === id);
-      fileScore += rule ? rule.weight : 10;
+      if (RULE_WEIGHT.has(id)) {
+        fileScore += RULE_WEIGHT.get(id)!;
+      } else {
+        if (!warnedUnknownRules.has(id)) {
+          console.warn(`[scanner] unknown rule id "${id}" — defaulting weight to 10`);
+          warnedUnknownRules.add(id);
+        }
+        fileScore += 10;
+      }
     }
     rawScore = Math.max(rawScore, fileScore);
   }
