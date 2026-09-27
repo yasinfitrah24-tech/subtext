@@ -11,7 +11,7 @@ Built with IBM Bob + IBM Granite · Team Triple T (Yasin Fitrah & Vincent) · IB
 
 | Detection rate | False positives | Accuracy | Speed | Tests |
 |---|---|---|---|---|
-| **85%** (17/20 malicious) | **0%** (0/20 benign) | **92.5%** | ~0.5 ms / file | **164/164** passing |
+| **85%** (17/20 malicious) | **0%** (0/20 benign) | **92.5%** | ~0.5 ms / file | **165/165** passing |
 
 ## The problem
 
@@ -109,6 +109,12 @@ npm run dev        # http://localhost:3000
 
 The **Demo** page scans a public GitHub URL (up to 200 files) or pasted text. To avoid GitHub
 API rate limits, put a read-only `GITHUB_TOKEN` in `web/.env.local` (gitignored).
+
+After each scan the Demo page asks IBM Granite Guardian to judge up to 5 flagged snippets.
+On the server, set `WATSONX_API_KEY`, `WATSONX_PROJECT_ID`, `WATSONX_URL` and optionally
+`WATSONX_MODEL` (Vercel → Environment Variables, never prefixed with `NEXT_PUBLIC_`) and the
+page shows **Granite Guardian: live on IBM watsonx**. Without them it uses a labelled cached
+heuristic. The key never reaches the browser, and results are cached to limit usage.
 
 ## Evaluation results
 
@@ -249,9 +255,23 @@ Every part of Subtext was built as a Bob task. Screenshots and exported task his
 | 05 – 05d | Built the website and GitHub scan; reduced noise and false positives |
 | 06 | Security Gate review of both demo repos and handoff to Agent mode ([`reports/SUMMARY.md`](reports/SUMMARY.md)) |
 | 07 | Website polish: copy buttons, logos, text/subtext toggle, animations |
+| 08 | Code review of the real-repo accuracy fixes and the sanitizer (see below) |
+| 09 | Security Gate review of the poisoned demo, then Agent mode ran Clean copy: **BLOCK 90/100 → SAFE 0/100** ([`reports/SUMMARY.md`](reports/SUMMARY.md)) |
 
-Small follow-up fixes after Task 07 (CSS animation scoping, one false positive on
-`demo/clean-starter`, synced site stats) were made by hand, without Bob.
+The real-repo accuracy fixes, the Clean copy sanitizer and the watsonx judge for the site were
+written by hand between Task 07 and Task 08, then handed to Bob for review in Task 08.
+
+### Task 08: Bob as reviewer, a person as the final call
+
+Bob reported five findings. We checked each one against the code and against real repos:
+
+| # | Bob's finding | Our check | Outcome |
+|---|---|---|---|
+| 1 | U+FEFF skipped in code files | Flagging it again re-breaks `sindresorhus/got` (BOM in test strings); hidden-text attacks use U+200B/C/D, which are still caught | Kept as is |
+| 2 | Off-by-one in the sanitizer's `through` | `through` is a 1-based line number and lines are dropped by index; a test confirms lines 2–3 are removed | Not a bug |
+| 3 | `#` comments in YAML/TOML cause false positives | Comment extraction only runs for code files; YAML/TOML are read whole | Not a bug |
+| 4 | Bare `<script src>` in Markdown not flagged | Flagging it re-breaks the `axios` README (CDN install guide); instructions to add a script are still caught | Kept as is |
+| 5 | Rule weight lookup repeats and silently defaults unknown rule IDs | Valid | **Fixed by Bob**, with a regression test (165 tests) |
 
 ## Repository layout
 
