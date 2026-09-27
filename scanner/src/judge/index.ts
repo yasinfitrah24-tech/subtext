@@ -2,11 +2,12 @@
  * Judge orchestrator — Granite Guardian integration.
  *
  * Sends ONLY flagged snippets (never whole files) to the judge.
- * Provider selection order:
- *   1. Ollama (if OLLAMA_URL is set OR localhost:11434 is reachable)
- *   2. watsonx.ai (if WATSONX_API_KEY + WATSONX_PROJECT_ID + WATSONX_URL are set)
+ * Provider selection order (auto mode):
+ *   1. watsonx.ai (if WATSONX_API_KEY + WATSONX_PROJECT_ID + WATSONX_URL are set)
+ *   2. Ollama (if OLLAMA_URL is set OR localhost:11434 is reachable)
  *   3. cached fallback
  *
+ * JUDGE_PROVIDER=watsonx|ollama|cached overrides auto selection.
  * Each snippet is wrapped as untrusted data inside the providers.
  */
 
@@ -76,11 +77,11 @@ export async function judgeSnippet(snippet: Snippet): Promise<JudgeResult> {
   if (forced === "watsonx" && isWatsonxConfigured()) return judgeWithWatsonx(snippet);
   if (forced === "ollama") return judgeWithOllama(snippet);
   if (forced === "cached") return judgeWithCache(snippet);
-  if (await isOllamaAvailable()) {
-    return judgeWithOllama(snippet);
-  }
   if (isWatsonxConfigured()) {
     return judgeWithWatsonx(snippet);
+  }
+  if (await isOllamaAvailable()) {
+    return judgeWithOllama(snippet);
   }
   return judgeWithCache(snippet);
 }

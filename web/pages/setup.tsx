@@ -109,24 +109,11 @@ npx ts-node src/index.ts ../some-repo --sanitize ./clean`}</code></pre>
       <section className={styles.section}>
         <div className={styles.sectionNum}>04</div>
         <h2 className={styles.h2}>Optional: Granite Guardian</h2>
-        <p className={styles.body}>The rule engine runs in under 1 ms. For borderline cases you can escalate flagged snippets to IBM Granite Guardian for a second opinion.</p>
+        <p className={styles.body}>You don&rsquo;t need this to try Subtext. The scanner, Clean copy and tests run without any judge, and the Demo page already runs Granite Guardian live on IBM watsonx. Add a judge to the CLI only if you have your own watsonx key or want to run fully offline.</p>
 
         <div className={styles.providerGrid}>
           <div className={styles.providerCard}>
-            <div className={styles.providerTitle}>Ollama (local)</div>
-            <div className={styles.providerDesc}>Pull <code className={styles.ic}>granite4.1-guardian:8b-q4_K_M</code> and set <code className={styles.ic}>OLLAMA_URL</code>.</div>
-            <div className={styles.codeBlock}>
-              <div className={styles.codeHeader}>
-                <span />
-                <CopyButton text={`ollama pull granite4.1-guardian:8b-q4_K_M\n# .env\nOLLAMA_URL=http://localhost:11434`} />
-              </div>
-              <pre className={styles.pre}><code>{`ollama pull granite4.1-guardian:8b-q4_K_M
-# .env
-OLLAMA_URL=http://localhost:11434`}</code></pre>
-            </div>
-          </div>
-          <div className={styles.providerCard}>
-            <div className={styles.providerTitle}>watsonx.ai (cloud)</div>
+            <div className={styles.providerTitle}>watsonx.ai (cloud, recommended)</div>
             <div className={styles.providerDesc}>Set three env vars. The scanner exchanges your API key for an IAM token automatically.</div>
             <div className={styles.codeBlock}>
               <div className={styles.codeHeader}>
@@ -138,6 +125,19 @@ WATSONX_API_KEY=your-ibm-cloud-api-key
 WATSONX_PROJECT_ID=your-project-id
 WATSONX_URL=https://us-south.ml.cloud.ibm.com
 WATSONX_MODEL=ibm/granite-guardian-3-8b`}</code></pre>
+            </div>
+          </div>
+          <div className={styles.providerCard}>
+            <div className={styles.providerTitle}>Ollama (local, offline, ~5 GB download)</div>
+            <div className={styles.providerDesc}>Pull <code className={styles.ic}>granite4.1-guardian:8b-q4_K_M</code> and set <code className={styles.ic}>OLLAMA_URL</code>.</div>
+            <div className={styles.codeBlock}>
+              <div className={styles.codeHeader}>
+                <span />
+                <CopyButton text={`ollama pull granite4.1-guardian:8b-q4_K_M\n# .env\nOLLAMA_URL=http://localhost:11434`} />
+              </div>
+              <pre className={styles.pre}><code>{`ollama pull granite4.1-guardian:8b-q4_K_M
+# .env
+OLLAMA_URL=http://localhost:11434`}</code></pre>
             </div>
           </div>
         </div>

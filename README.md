@@ -90,11 +90,13 @@ npm test
 
 ### Optional: Granite Guardian judge
 
+Not required. The live Demo page already runs Granite Guardian on IBM watsonx.
+
 Add `--judge` to send flagged snippets to IBM Granite Guardian. Copy `scanner/.env.example`
 to `scanner/.env` and pick one provider:
 
-- **Ollama (local):** `ollama pull granite4.1-guardian:8b-q4_K_M`, then set `OLLAMA_URL`
 - **watsonx.ai:** set `WATSONX_API_KEY`, `WATSONX_PROJECT_ID` and `WATSONX_URL`
+- **Ollama (local, ~5 GB download):** `ollama pull granite4.1-guardian:8b-q4_K_M`, then set `OLLAMA_URL`
 
 With no provider configured, the scanner falls back to a cached heuristic and labels the
 result `provider: cached`. `.env` is gitignored; never commit keys.
@@ -260,9 +262,10 @@ Every part of Subtext was built as a Bob task. Screenshots and exported task his
 | 09 | Security Gate review of the poisoned demo, then Agent mode ran Clean copy: **BLOCK 90/100 → SAFE 0/100** ([`reports/SUMMARY.md`](reports/SUMMARY.md)) |
 | 10 | Documented the live watsonx judge on the site and README |
 | 11 | Made a fresh clone clean: .gitignore for scanner output, web/.env.example, clearer .env setup |
+| 12 | Made Granite setup clear for judges: watsonx first, no Ollama download needed |
 
 The real-repo accuracy fixes, the Clean copy sanitizer and the watsonx judge for the site were
-written by hand between Task 07 and Task 08, then handed to Bob for review in Task 08. 16 Bob tasks total.
+written by hand between Task 07 and Task 08, then handed to Bob for review in Task 08. 17 Bob tasks total.
 
 ### Task 08: Bob as reviewer, a person as the final call
 
