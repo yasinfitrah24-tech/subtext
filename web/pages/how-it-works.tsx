@@ -29,7 +29,7 @@ const STEPS = [
   {
     num: '03',
     title: 'Rules scan',
-    desc: '11 patterns, under 10 ms',
+    desc: '11 rules, under 1 ms a file',
     icon: (
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#DCE3EC" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M7 3h7l4 4v14H7z"/>
@@ -44,7 +44,7 @@ const STEPS = [
   {
     num: '04',
     title: 'Granite judges',
-    desc: 'Flagged snippets only',
+    desc: 'Live on IBM watsonx',
     icon: null,
     imgSrc: '/ibm-granite.png',
     imgSize: 34,

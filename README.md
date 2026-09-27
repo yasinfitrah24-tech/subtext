@@ -263,9 +263,10 @@ Every part of Subtext was built as a Bob task. Screenshots and exported task his
 | 10 | Documented the live watsonx judge on the site and README |
 | 11 | Made a fresh clone clean: .gitignore for scanner output, web/.env.example, clearer .env setup |
 | 12 | Made Granite setup clear for judges: watsonx first, no Ollama download needed |
+| 13 | Made the website match the pitch deck (watsonx wording, files not repos, eval source) |
 
 The real-repo accuracy fixes, the Clean copy sanitizer and the watsonx judge for the site were
-written by hand between Task 07 and Task 08, then handed to Bob for review in Task 08. 17 Bob tasks total.
+written by hand between Task 07 and Task 08, then handed to Bob for review in Task 08. 18 Bob tasks total.
 
 ### Task 08: Bob as reviewer, a person as the final call
 

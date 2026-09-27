@@ -133,7 +133,7 @@ export default function Home() {
           </div>
           <div className={styles.divider} />
           <div className={styles.cardFooter}>
-            <span>Context check: IBM Granite</span>
+            <span>Judged by Granite on IBM watsonx</span>
             <Link href="/demo" className={styles.cardLink}>Run it yourself →</Link>
           </div>
         </div>
@@ -185,16 +185,16 @@ export default function Home() {
           <div className={styles.resultSmalls}>
             <div className={styles.resultSmall}>
               <div className={styles.resultSmallNum}>{fpRate}<span style={{ fontSize: '0.5em' }}>%</span></div>
-              <div className={styles.resultSmallLabel}>false positive rate — zero false alarms on benign repos</div>
+              <div className={styles.resultSmallLabel}>false positive rate — zero false alarms on benign files</div>
             </div>
             <div className={styles.resultSmall}>
               <div className={styles.resultSmallNum} ref={tn.ref}>{tn.val}<span style={{ fontSize: '0.4em' }}>/20</span></div>
-              <div className={styles.resultSmallLabel}>benign repos correctly cleared</div>
+              <div className={styles.resultSmallLabel}>benign files correctly cleared</div>
             </div>
           </div>
         </div>
         <div className={styles.sourceNote}>
-          Numbers from <code className={styles.inlineCode}>eval/results.json</code> · run <code className={styles.inlineCode}>npm test</code> in <code className={styles.inlineCode}>/scanner</code> to reproduce
+          Numbers from <code className={styles.inlineCode}>eval/results.json</code> · reproduce with <code className={styles.inlineCode}>eval/evaluate.ts</code> (see README) · 6/6 popular public repos (express, axios, requests, got, chalk, nvm) not blocked
         </div>
       </section>
       {/* ── Built with IBM Bob ── */}
@@ -239,7 +239,7 @@ export default function Home() {
         </div>
 
         <div className={styles.bobFoot}>
-          17 Bob tasks · 165/165 tests · 48 hours · every task exported in bob_sessions/
+          18 Bob tasks · 165/165 tests · 48 hours · every task exported in bob_sessions/
         </div>
       </section>
     </Layout>

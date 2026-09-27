@@ -114,7 +114,7 @@ npx ts-node src/index.ts ../some-repo --sanitize ./clean`}</code></pre>
         <div className={styles.providerGrid}>
           <div className={styles.providerCard}>
             <div className={styles.providerTitle}>watsonx.ai (cloud, recommended)</div>
-            <div className={styles.providerDesc}>Set three env vars. The scanner exchanges your API key for an IAM token automatically.</div>
+            <div className={styles.providerDesc}>Set three env vars (WATSONX_MODEL is optional). The scanner exchanges your API key for an IAM token automatically.</div>
             <div className={styles.codeBlock}>
               <div className={styles.codeHeader}>
                 <span />
