@@ -147,3 +147,8 @@ vite.config.ts.timestamp-*
 *.pem
 .vercel/
 .DS_Store
+
+# Scanner output
+scanner/results.json
+scanner/clean/
+results.json

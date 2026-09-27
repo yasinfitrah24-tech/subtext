@@ -67,7 +67,7 @@ node dist/index.js ../demo/node-api-starter --sanitize ./clean
 
 ## Quick start
 
-Requires Node.js 18+.
+Requires Node.js 18+. On Windows, the same commands work in PowerShell.
 
 ```bash
 git clone https://github.com/yasinfitrah24-tech/subtext.git
@@ -108,7 +108,7 @@ npm run dev        # http://localhost:3000
 ```
 
 The **Demo** page scans a public GitHub URL (up to 200 files) or pasted text. To avoid GitHub
-API rate limits, put a read-only `GITHUB_TOKEN` in `web/.env.local` (gitignored).
+API rate limits, copy `web/.env.example` to `web/.env.local` and fill in `GITHUB_TOKEN` (read-only). Both are optional.
 
 After each scan the Demo page asks IBM Granite Guardian to judge up to 5 flagged snippets.
 On the server, set `WATSONX_API_KEY`, `WATSONX_PROJECT_ID`, `WATSONX_URL` and optionally
@@ -259,9 +259,10 @@ Every part of Subtext was built as a Bob task. Screenshots and exported task his
 | 08 | Code review of the real-repo accuracy fixes and the sanitizer (see below) |
 | 09 | Security Gate review of the poisoned demo, then Agent mode ran Clean copy: **BLOCK 90/100 → SAFE 0/100** ([`reports/SUMMARY.md`](reports/SUMMARY.md)) |
 | 10 | Documented the live watsonx judge on the site and README |
+| 11 | Made a fresh clone clean: .gitignore for scanner output, web/.env.example, clearer .env setup |
 
 The real-repo accuracy fixes, the Clean copy sanitizer and the watsonx judge for the site were
-written by hand between Task 07 and Task 08, then handed to Bob for review in Task 08. 15 Bob tasks total.
+written by hand between Task 07 and Task 08, then handed to Bob for review in Task 08. 16 Bob tasks total.
 
 ### Task 08: Bob as reviewer, a person as the final call
 

@@ -239,7 +239,7 @@ export default function Home() {
         </div>
 
         <div className={styles.bobFoot}>
-          15 Bob tasks · 165/165 tests · 48 hours · every task exported in bob_sessions/
+          16 Bob tasks · 165/165 tests · 48 hours · every task exported in bob_sessions/
         </div>
       </section>
     </Layout>
